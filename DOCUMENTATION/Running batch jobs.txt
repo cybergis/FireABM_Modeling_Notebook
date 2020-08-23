@@ -1,0 +1,20 @@
+Vandewalle, Kang, and Wang 2020
+
+###############################################################
+### Running batch jobs on Virtual Roger (Keeling)
+
+Two scripts (jobscript.sh and run_jobs.sh) are provided to assist in running batch jobs and are described below. These are currently setup to use the SLURM Workload Manager used by Virtual Roger (Keeling), but can be adjusted to run on other HPC. Note that the code is not parallel, so requesting multiple nodes will not improve performance. 
+
+1. jobscript.sh 
+	
+This file submits one job to the HPC workload manager. It is currently set up to run one simulation for 5 sequential seeds and needs to be called from run_jobs.sh to set the initial seed value.
+
+Before running this file, adjust the time to make sure you have enough time to complete the jobs you want to run. The quickest driving strategy takes the longest to run, and is generally good to figure one job takes approximately 5 hours to run for 800 vehicles. The major roads strategy runs quicker, and the shortest distance strategy runs the fastest.
+
+Make sure you enter in your email address, change the path to the path to the folder that contains all the code provided code, and change the output folder and driving strategies as needed. It is helpful to run a short test run before committing to a large job.
+
+This file calls run_fireabm.py, which sets up and runs each simulation.
+
+2. run_jobs.sh
+
+This is the file that you will submit to the scheduler that will then call jobscript.sh multiple times to set up individual jobs. When running this file, make sure your seed increments match the length of the loop in jobscript.sh so that seeds are not run multiple times or skipped. You may want to also change the output and error folders depending on the run.

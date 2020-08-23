@@ -1,0 +1,56 @@
+Vandewalle, Kang, and Wang 2020
+
+###############################################################
+### Index of provided files
+
+1. Simulation core code: these files are necessary to run the simulation.
+	FireABM_opt_Keel.py
+		- used on Virtual Roger (Keeling)
+	FireABM_opt.py
+		- used on CyberGISX
+
+2. Simulation input data
+	a. Santa Rosa fire perimeter shapefile
+		santa_rosa_fire (.cpg, .dbf, .prj, .qpj, .shp, .shx)
+
+	a. Osmnx saved road graph
+ 		Sta_Rosa_2000.pkl
+ 		Sta_Rosa_8000.pkl
+		demo_road_graph.pkl
+			- simplified road graph used to demonstrate driving strategies
+
+	c. Households shapefile (only if creating new road graph)
+		Santa_Rosa_tracts_hh (.cpg, .dbf, .prj, .qpj, .shp, .shx)
+
+3. Create custom input Osmnx graph
+	Rebuild_Road_Graphs.ipynb
+
+4. Run simulation (command line)
+	run_fireabm.py
+
+5. Run simulation (batch on Virtual Roger/Keeling)
+	jobscript.sh 
+		- runs 1 job
+	run_jobs.sh 
+		- calls jobscript.sh multiple times
+
+6. Combine simulation results
+	check_seeds.py 
+		- quick way to check which seeds worked
+	collect_results_by_strat.py
+		- combine results for a driving strategy
+	combine_results.py 
+		- combine results for multiple driving strategies using output from collect_results_by_strat.py
+
+7. Result file for simulations used in manuscript
+	combined_rslts_8_13.txt
+
+8. Get result images used in manuscript
+	Graph_Final_Summer_Results_Final.ipynb
+
+9. Simulation demo jupyter notebook
+	FireABM_Demo_Notebook.ipynb
+
+
+
+
