@@ -1,6 +1,0 @@
-Vandewalle, Kang, and Wang 2020
-
-###############################################################
-### Graph Files Sta_Rosa_2000_orig.pkl vs Sta_Rosa_2000.pkl
-
-Four road graph files are provided in this repository, Sta_Rosa_2000.pkl, Sta_Rosa_8000.pkl, Sta_Rosa_2000_orig.pkl, and Sta_Rosa_8000_orig.pkl. Road Network information are from Open Street Map, so road network data can be edited by users at any time. Sta_Rosa_2000.pkl and Sta_Rosa_8000.pkl are created using code in the Rebuild_Road_Graphs notebook. If you run this notebook, you overwrite the existing road network files with new ones. For replicability sake, Sta_Rosa_2000_orig.pkl and Sta_Rosa_8000_orig.pkl were the road network files used in the manuscript experiments. Because the base Open Street Map data has changed since the experiments were preformed, these files will be different than ones generated with the Rebuild_Road_Graphs code.

@@ -1,0 +1,72 @@
+Vandewalle, Kang, and Wang 2020
+
+###############################################################
+### Creating a virtual environment on Virtual Roger (Keeling)
+
+The Osmnx Python package is a key component of the wildfire evacuation simulation model, however, this package is not included by default in the Virtual Roger (Keeling) computing environment Anaconda package. In order to run the simulation on Virtual Roger, the Osmnx package needs to be installed on the run node. You can make it accessible by creating a virtual environment and activating it upon run time. Use the following steps to create a virtual environment called "ox" that will be loaded to run the jobscript file. This will install Osmnx version 0.15.1. Note that FireABM_opt_Keel.py needs to be used to run with this configuration.
+
+1. Log on to Virtual Roger (Keeling) using ssh
+2. Type the following commands on the login node:
+
+conda config --prepend channels conda-forge
+
+conda create -n ox --yes python=3 osmnx
+
+3. This should have created the virtual environment. Now activate it using the following command:
+
+source activate ox
+
+4. Test to see if you can access the Osmnx package with the following command:
+
+python -c "import osmnx; print(osmnx.__version__)"
+
+5. Finally, you can view available environments with the following command:
+
+conda list -n myenv
+
+
+###############################################################
+### Creating a virtual environment on CyberGISX
+
+Currently Osmnx is included in the CyberGISX Python3 kernel, however the version is 0.11.4. This version will work with FireABM_opt.py. If, however, you wish to test FireABM_opt_Keel.py in CyberGISX, you will need to create a kernel with Osmnx 0.15.1. You can do that using the following steps.
+
+1. Open a Terminal instance in CyberGISX and type the following commands to create the environment:
+
+conda config --prepend channels conda-forge
+
+conda create -n ox --yes python=3 osmnx
+
+2. Activate the new environment:
+
+conda activate ox
+
+3. Install IPython Kernel within the environment:
+
+pip install ipykernel
+
+4. Deactivate the new environment
+
+conda deactivate
+
+5. Check where Python3 is installed for the environment:
+python3
+
+6. Exit the Python shell
+exit()
+
+7. Install the kernel for the python version used by the virtual environment
+
+/opt/conda/envs/ox/bin/python3.8 -m ipykernel install --user --name=ox
+
+8. Check to see if the new environment is available as a kernel
+
+jupyter kernelspec list
+
+
+###
+Now you should be able to open a notebook and use the new kernel to access Osmnx 0.15.1. Note that the virtual environment does not persist - if you stop and restart your server or if the system restarts in the backend you will have to repeat this process to gain access to the kernel again. 
+
+
+
+
+

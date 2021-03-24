@@ -1,8 +1,0 @@
-Vandewalle, Kang, and Wang 2020
-
-###############################################################
-### Gathering household data
-
-For this manuscript, we acquired 5 year American Community Survey estimate data for households in census tracts that were within the study area from table S1101 which can be found at https://data.census.gov/cedsci/table?q=S1101. Household counts were then joined to 2019 TIGER/Line® Census Tract shapefiles.
-
-If household data of interested has been recorded for different geographical boundaries, a different shapefile can also be used. The 'add_households' function appends the data to the road graph.

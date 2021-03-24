@@ -1,0 +1,33 @@
+Vandewalle, Kang, and Wang 2020
+
+###############################################################
+### Replicating the manuscript experimental procedure
+
+Here are the steps needed to replicate the experimental procedure:
+
+1. Gather provided input files
+	- fire_input/santa_rosa_fire.shp (and associated files)
+		- fire perimeters used in manuscript experiment
+	- households/Santa_Rosa_tracts_hh.shp (and associated files)
+		- households used to place vehicles according to population distribution
+
+2. Construct road graphs using the 'Rebuild_Road_Graphs' Jupyter notebook
+	- uses fire perimeters and households files
+	- creates road graphs used in the simulation
+	- output: Sta_Rosa_2000.pkl and Sta_Rosa_8000.pkl
+		- Sta_Rosa_2000.pkl is smaller and can be used for testing
+		- Sta_Rosa_8000.pkl is used for manuscript experiments
+
+3. Run simulations on HPC 
+	- create virtual conda environment (see "Creating a virtual environment for Osmnx" help documentation)
+	- on HPC, adjust jobscript.sh for your particular setup (input email, path to data folder) and a particular driving strategy, and output folders (you can also adjust the seed increments in both run_jobs.sh and jobscript.sh). To run the simulation, submit run_jobs.sh to the scheduler
+	- occasionally seeds fail to successfully complete, run more iterations than required to ensure enough can be used (only seeds that successfully run for each driving strategy are kept)
+
+4. Gather result data on HPC
+	- run check_seeds.py to check if there enough successful seeds
+	- run collect_results_by_strat.py to combine all results from one strategy to one file
+	- run combine_results.py to combine results from collect_results_by_strat.py into one file that contains results from all strategies
+	- note, simulation results used in the manuscript can be found in combined_rslts_8_13.txt
+
+5. Create output figures and graphs using the 'Graph_Results_Final' Jupyter notebook
+	- input: combined simulation results (combined_rslts_8_13.txt)

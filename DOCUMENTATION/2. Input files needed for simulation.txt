@@ -1,0 +1,19 @@
+Vandewalle, Kang, and Wang 2020
+
+###############################################################
+### Input files needed to run simulation
+
+Generally, three input data sources are needed to run the simulation, a road network graph, a fire shapefile, and a shapefile containing household counts. The simulation in the manuscript uses all three input files, however it is also possible to run the simulation with just a road graph, in which case no fire effects will occur and initial vehicle positions will be randomly scattered throughout the evacuation zone.
+
+Osmnx Road Grid (required)
+	- steps to construct the road graph used in the manuscript are contained in the 'Rebuild_Road_Graphs' Jupyter notebook
+	- other Osmnx graph creation functions may also be used to gather the initial graph data
+
+
+Fire Shapefile (required for wildfire spread) 
+	- must have a 'SimTime' index column
+	- see 'Creating a simulated wildfire with FlamMap' help documentation for more information
+
+Households Shapefile (required for proportional vehicle spawning)
+	- must have a column containing household counts (household counts can be acquired from the US Census)
+	- see 'Gathering household data' help documentation for more information
