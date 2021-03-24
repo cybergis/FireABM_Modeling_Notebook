@@ -33,13 +33,13 @@ See [0_Replicating_the_manuscript_experimental_procedure.txt](DOCUMENTATION/0_Re
 1. Make sure you have the required python libraries installed (see [4_Required_Python_packages.txt](DOCUMENTATION/4_Required_Python_packages.txt))
 1. If on Keeling or another HPC environment, set up a virtual environment (see [5_Creating_a_virtual_environment_for_Osmnx.txt](DOCUMENTATION/5_Creating_a_virtual_environment_for_Osmnx.txt))
 1. If you want to set initial agent positions by population, get households data from the US Census  (see [6_Gathering_household_data.txt](DOCUMENTATION/6_Gathering_household_data.txt))
-1. If you want to make your own wildfire simulation to use in the model, use FlamMap to generate a fire (see [\_Creating_a_simulated_wildfire_with_FlamMap.txt](DOCUMENTATION/7_Creating_a_simulated_wildfire_with_FlamMap.txt))
+1. If you want to make your own wildfire simulation to use in the model, use FlamMap to generate a fire (see [7_Creating_a_simulated_wildfire_with_FlamMap.txt](DOCUMENTATION/7_Creating_a_simulated_wildfire_with_FlamMap.txt))
 1. Determine which core script to use (see [8_Which_script_version_to_use_-_opt_or_opt_Keel.txt](DOCUMENTATION/8_Which_script_version_to_use_-_opt_or_opt_Keel.txt))
 1. To run batch jobs determine which scripts you want to run (see [9_Running_batch_jobs.txt](DOCUMENTATION/9_Running_batch_jobs.txt))
 1. Determine which simulation parameters to use (see [10_Simulation_run_parameters.txt](DOCUMENTATION/10_Simulation_run_parameters.txt))
 
 ### Simulation Output
-Running the simulation will generate videos, such as the one at the beginning of this readme, as well as text results (see [11_Simulation_output_structure_and_explanation.txt](DOCUMENTATION/11_Simulation_output_structure_and_explanation.txt)).  [12_Example_simulation_run_times.txt](DOCUMENTATION/12_Example_simulation_run_times.txt) contains run times to help estimate how long a simulation might run. Finally, [13_Graph_Files_with_names_ending_in_orig.txt](DOCUMENTATION/13_Graph_Files_with_names_ending_in_orig.txt) discusses which results files are provided.
+Running the simulation will generate videos, such as the one at the beginning of this readme, as well as text results (see [11_Simulation_output_structure_and_explanation.txt](DOCUMENTATION/11_Simulation_output_structure_and_explanation.txt)). [12_Example_simulation_run_times.txt](DOCUMENTATION/12_Example_simulation_run_times.txt) contains run times to help estimate how long a simulation might run. Finally, [13_Graph_Files_with_names_ending_in_orig.txt](DOCUMENTATION/13_Graph_Files_with_names_ending_in_orig.txt) discusses which results files are provided.
 
 #### Important files
 See [1_Index_of_provided_files.txt](DOCUMENTATION/1_Index_of_provided_files.txt) for short description the provided files in the repo
