@@ -1,4 +1,5 @@
 
+https://img.shields.io/github/license/cybergis/FireABM_Modeling_Notebook
 ## Evaluating Implications of Problematic Routing Assumptions in Spatially Explicit Agent-Based Models of Wildfire Evacuation
 ### Code Base Documentation
 
