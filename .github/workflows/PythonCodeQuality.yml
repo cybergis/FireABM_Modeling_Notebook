@@ -19,4 +19,4 @@ jobs:
         uses: py-actions/flake8@v1
         with:
           path: "FireABM_opt.py run_fireabm.py"
-          args: "--ignore=E128,E302,E303,E306,E305,E501,E632,E722,F401,F403,F405,F621,F632,F821,F841"
+          args: "--ignore=E126,E128,E302,E303,E306,E305,E501,E632,E722,F401,F403,F405,F621,F632,F821,F841"
