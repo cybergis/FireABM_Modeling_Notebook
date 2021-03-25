@@ -11,6 +11,8 @@ This repository contains code needed to run an agent-based emergency evacuation 
 ### Start here
 Run [FireABM\_Demo_Notebook.ipynb](FireABM_Demo_Notebook.ipynb) for an overview of how the simulation works.
 
+[Launch with CyberGISX](https://cybergisx.cigi.illinois.edu/hub/user-redirect/git-pull?repo=https%3A%2F%2Fgithub.com%2Fcybergis%2FFireABM_Modeling_Notebook&urlpath=tree%2FFireABM_Modeling_Notebook%2FFireABM_Demo_Notebook.ipynb&branch=master)
+
 ### Purpose 
 This code directory contains code needed to replicate the experiments using a spatially-explicit agent-based model of wildfire evacuation in a forthcoming manuscript by Vandewalle, Kang, and Wang, as well as companion documentation and a code demonstration Jupyter notebook. 
 
