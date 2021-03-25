@@ -1234,7 +1234,7 @@ class NetABM():
             self.closed_roads.update(self.last_closed_roads)
             for i in range(len(self.vehicles)):
                 if (not self.vehicles[i].isStuck) and self.vehicles[i].handle_blocks(self.last_closed_roads):
-                    self.vehicle_colors[i] = (0.0, 0.0, 0.0, 1.0)  # black                                  
+                    self.vehicle_colors[i] = (0.0, 0.0, 0.0, 1.0)  # black
         # assert all(self.roads[r].isBlocked for r in self.closed_roads)
         # assert all(not self.roads[r].isBlocked for r in self.roads if r not in self.closed_roads)
 
@@ -1289,7 +1289,7 @@ class NetABM():
         if len(self.last_closed_roads) > 0:
             self.g.remove_edges_from(self.last_closed_roads)
             self.closed_roads.update(self.last_closed_roads)
-            
+
         if any(skey in self.init_strategies.keys() for skey in ['fire+dist', 'fire+rdty_weight']):
             self.g = add_fire_distance(self.g, self.fire_slice, norm=True, inv=True)
             if self.init_strategies.get('fire+dist', 0) > 0:
@@ -1323,7 +1323,7 @@ class NetABM():
             for i in range(len(self.vehicles)):
                 if (not self.vehicles[i].isStuck) and self.vehicles[i].handle_blocks(self.last_closed_roads, target=self.targets):
                     self.vehicle_colors[i] = (0.0, 0.0, 0.0, 1.0)  # black
- 
+
 
 
     def show(self, ax, number_veh=False):
