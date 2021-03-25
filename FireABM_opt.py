@@ -693,7 +693,7 @@ def view_path(g, start_point, exit_point, strategy=[], showMap=False, norm=True)
                     sweight = 'fire_rd_wght_n'
                 else:
                     print('not implemented')
-            
+
             path = nx.shortest_path(g, source=start_point, target=exit_point, weight=sweight)
             if showMap:
                 ox.plot.plot_graph_route(g, path, route_color=rc)
@@ -746,7 +746,7 @@ def compare_paths(g, paths, strategies=None, showMap=False):  # Becky added, sho
 
 class Road:
     def __init__(self, g, node_i, node_j, key, attr, lanes=DEFAULT_ROAD_LANES, speed=DEFAULT_ROAD_SPEED):
-        self.g=g
+        self.g = g
         self.node_i = node_i
         self.node_j = node_j
         self.key = key
@@ -758,97 +758,97 @@ class Road:
         self.requests = []
         self.isBlocked = False
         if 'maxspeed' in self.attr:
-            s=self.attr['maxspeed']
-            if type(s)==list:
-                s=s[0]
-            self.speed=mph2ms(int(s[:2]))
+            s = self.attr['maxspeed']
+            if type(s) == list:
+                s = s[0]
+            self.speed = mph2ms(int(s[:2]))
         else:
-            self.speed=speed*(np.random.random()*2+0.5) # 0.5-2.5 of inital speed
+            self.speed = speed * (np.random.random() * 2 + 0.5)  # 0.5-2.5 of inital speed
         self.normal_speed = self.speed
-        assert self.speed>=0
+        assert self.speed >= 0
 
-        ## -> quickest time
-        self.checkins = {} # the entry time and position of current vehicles
-        self.ett = {} # estimated travel time based on exit vehicles, at time t, ett updated by v
-        ## <- quickest time 
-        
+        # -> quickest time
+        self.checkins = {}  # the entry time and position of current vehicles
+        self.ett = {}  # estimated travel time based on exit vehicles, at time t, ett updated by v
+        # <- quickest time
+
         if 'Tract_name' in self.attr:
             self.tract = self.attr['Tract_name']
         else:
             self.tract = None
-            
+
         if 'Test_Cpd_Ratio' in self.attr:
             self.test_hh_ratio = self.attr['Test_Cpd_Ratio']
             if self.test_hh_ratio is None:
-                self.test_hh_ratio = 0 
+                self.test_hh_ratio = 0
         else:
             self.test_hh_ratio = 0
-            
+
         if 'Pct_HH_Cpd' in self.attr:
             self.hh_ratio = self.attr['Pct_HH_Cpd']
             if self.hh_ratio is None:
-                self.hh_ratio = 0 
+                self.hh_ratio = 0
         else:
             self.hh_ratio = 0
 
-    ## -> quickest time
-    #ett = length/speed
+    # -> quickest time
+    # ett = length/speed
     def check_in(self, vid, pos, frame_number):
-        #print('checkin vid:', vid, 'fn:', frame_number, 'rdidx:', self.idx)
-        self.checkins[vid]=(pos, frame_number)
+        # print('checkin vid:', vid, 'fn:', frame_number, 'rdidx:', self.idx)
+        self.checkins[vid] = (pos, frame_number)
 
     def check_out(self, vid, last_pos, frame_number):
         assert vid in self.checkins
-        delta = last_pos - self.checkins[vid][0] #Last pos - first pos
+        delta = last_pos - self.checkins[vid][0]  # Last pos - first pos
         if abs(delta) > 1e-7:
-            #print('checkout vid:', vid, 'fn:', frame_number, 'first pos', self.checkins[vid][1], 'rdidx:', self.idx, 'delta:', delta)
-            self.ett[frame_number] = ((frame_number - 1 - self.checkins[vid][1]) / delta * self.length, vid, delta/(frame_number - 1 - self.checkins[vid][1]))
-            #print('full ett: ', self.ett)
+            # print('checkout vid:', vid, 'fn:', frame_number, 'first pos', self.checkins[vid][1], 'rdidx:', self.idx, 'delta:', delta)
+            self.ett[frame_number] = ((frame_number - 1 - self.checkins[vid][1]) / delta * self.length, vid, delta / (frame_number - 1 - self.checkins[vid][1]))
+            # print('full ett: ', self.ett)
         del self.checkins[vid]
-    ## <- quickest time
-        
-    def set_block(self): # set to block road by fire spread
+    # <- quickest time
+
+    def set_block(self):  # set to block road by fire spread
         self.isBlocked = True
-        
+
     def mutate_block(self, prob=0.1):
         if not self.isBlocked:
             if np.random.random() < prob:
-            #if not self.isBlocked:
+                # if not self.isBlocked:
                 self.isBlocked = True
                 return True
         return False
-            #else:
-            #    self.isBlocked = False
-            #    collection.remove(self.idx)
-        
+        # else:
+        #    self.isBlocked = False
+        #    collection.remove(self.idx)
+
     def mutate_speed(self, prob=0.9):
-        if np.random.random() < prob: # stay unchanged for most of time
+        if np.random.random() < prob:  # stay unchanged for most of time
             if self.normal_speed == self.speed:
-                self.speed = 1.0 if np.random.random() > 0.5 else 30 # Road mutate
+                self.speed = 1.0 if np.random.random() > 0.5 else 30  # Road mutate
             else:
-                self.speed = self.normal_speed # Road restored
-        
+                self.speed = self.normal_speed  # Road restored
+
     def show(self, vehicles=None):
         if vehicles is None:
             vehicles = self.vehicles
-        return shapely.geometry.GeometryCollection([self.geom]+[self.geom.interpolate(_.pos) for _ in vehicles])
-    
+        return shapely.geometry.GeometryCollection([self.geom] + [self.geom.interpolate(_.pos) for _ in vehicles])
+
     def tail_space(self):
         if len(self.vehicles) == 0:
             return self.length
         return max(self.vehicles[-1].pos - self.vehicles[-1].length, 0)
-    #def remain_space(self):
+    # def remain_space(self):
     #    return self.length-sum(_.length for _ in self.vehicles)
-    
+
     def add_vehicle(self, v):
         if self.tail_space() <= 0:
             return False
         if v.pos is 0:
-            v.pos = np.random.random()*self.tail_space() ##!!! This is not true random
+            v.pos = np.random.random() * self.tail_space()  # !!! This is not true random
         self.vehicles.append(v)
         return True
-    
-    #def adjust(self):
+
+    # def adjust(self):
     #    n=len(self.vehicles)
     #    if n == 0:
     #        return
@@ -858,7 +858,7 @@ class Road:
     #    for i in range(n):
     #        acc_length += self.vehicles[n-1-i].length
     #        self.vehicles[n-1-i].pos=poses[i]+acc_length
-            
+
     def move(self, frame_number, timestep=1):
         if len(self.vehicles) == 0:
             return
@@ -867,70 +867,70 @@ class Road:
         previous = None
         for v in self.vehicles:
             v.new_pos = v.pos + distance
-            
-            if previous is None: # first car
+
+            if previous is None:  # first car
                 if v.new_pos > self.length:  # need transit
-                    if v.next_road is None or v.next_road.isBlocked: # in dead end or blocked road, wait at the beginning
-                        v.new_pos = self.length 
+                    if v.next_road is None or v.next_road.isBlocked:  # in dead end or blocked road, wait at the beginning
+                        v.new_pos = self.length
                         v.last_move = v.new_pos - v.pos
                     else:
-                        v.next_road.request_join(v.new_pos - self.length, v, self, timestep, frame_number) # timestep instead of frame_number                                         
+                        v.next_road.request_join(v.new_pos - self.length, v, self, timestep, frame_number)  # timestep instead of frame_number
                 else:
                     v.last_move = distance
             else:
                 v.new_pos = min(v.new_pos, previous)
                 v.last_move = v.new_pos - v.pos
-                
+
             previous = v.new_pos - v.length
-    
+
     def request_join(self, momentum, v, from_road, timestep, frame_number):
         self.requests.append((momentum, v, from_road, timestep, frame_number))
-    
-    def resolve_requests(self, frame_number): # being called after all moves() done 
+
+    def resolve_requests(self, frame_number):  # being called after all moves() done
         if len(self.requests) == 0:
             return
         self.requests.sort()
         if len(set(_[1].vid for _ in self.requests)) < len(self.requests):
             raise ValueError('Duplicate vehicle in requests')
-            
-        while self.tail_space() > 0 and len(self.requests) > 0: # receive new vehicles as much as possible
+
+        while self.tail_space() > 0 and len(self.requests) > 0:  # receive new vehicles as much as possible
             momentum, v, from_road, timestep, frame_number = self.requests.pop()
-            from_road.check_out(v.vid, v.pos, frame_number) # quickest path
+            from_road.check_out(v.vid, v.pos, frame_number)  # quickest path
             v.new_pos = min(self.tail_space(), momentum)
             v.last_move = v.new_pos + from_road.length - v.pos
             v.pos = v.new_pos
             from_road.vehicles.popleft()
-            self.check_in(v.vid, v.pos, frame_number) 
+            self.check_in(v.vid, v.pos, frame_number)
             self.vehicles.append(v)
             v.road = self
             v.trajectory.append((self.idx, frame_number))
             v.choose_next(frame_number)
-            
-        for momentum, v, from_road, timestep, frame_number in self.requests: # Those failed to udpate
-            v.new_pos = from_road.length # wait at the top of their original road
+
+        for momentum, v, from_road, timestep, frame_number in self.requests:  # Those failed to udpate
+            v.new_pos = from_road.length  # wait at the top of their original road
             v.last_move = v.new_pos - v.pos
-        
-        self.requests=[]
-     
+
+        self.requests = []
+
     def sync_pos(self):
         for v in self.vehicles:
             v.pos = v.new_pos
-            
+
     def report_veh_num(self):
         if self.length > 0:
-            return (len(self.vehicles), len(self.vehicles)/self.length)
+            return (len(self.vehicles), len(self.vehicles) / self.length)
         else:
             return (len(self.vehicles), None)
-        
+
 class Vehicle:
     def __init__(self, g, vid, road=None, length=DEFAULT_VEHICLE_LENGTH, pos=0, target=None, st_weight='length'):
-        self.g=g
-        self.vid=vid
+        self.g = g
+        self.vid = vid
         self.road = road
-        self.timer=0
-        self.length=length
-        self.pos=pos
-        self.target=target
+        self.timer = 0
+        self.length = length
+        self.pos = pos
+        self.target = target
         self.st_weight = st_weight
         self.goal_time = None
         self.trajectory = []
@@ -941,79 +941,79 @@ class Vehicle:
         self.set_route_times = 0
         self.is_clear = False
         self.init_paths = None
-        #if self.road:
+        # if self.road:
         #    self.addTo(self.road)
         #    self.navigate()
-            
-        #if self.road:
+
+        # if self.road:
         #    self.addTo(self.road, self.pos)
         #    if not pos:
         #        self.pos=np.random.random()*self.road.length
-    
+
     def choose_target(self, target_list=None):
-        #print('choose_target navigate seting routes')
+        # print('choose_target navigate seting routes')
         if target_list is None:
             if type(self.target) == list:
                 target_list = self.target
             else:
                 self.isStuck = True
                 return
-            
-        ans = [float('inf'), None, None] # length, target, path
+
+        ans = [float('inf'), None, None]  # length, target, path
         for t in target_list:
-            #print('choose_target find targets')
+            # print('choose_target find targets')
             if nx.has_path(self.g, self.road.node_j, t):
-                ### Shortest Path
-                #print('path weight,', self.st_weight,'is used')
+                # Shortest Path
+                # print('path weight,', self.st_weight,'is used')
                 paths = nx.shortest_path(self.g, self.road.node_j, t, weight=self.st_weight)
-                if self.st_weight == 'dist': # Becky added if statements to determine overall shortest path by adjusted weight
-                    #length = sum(self.g.adj[paths[i]][paths[i+1]][0]['length'] for i in range(len(paths)-1))
-                    length = sum(self.g.adj[paths[i]][paths[i+1]][0]['length_n'] for i in range(len(paths)-1)) 
+                if self.st_weight == 'dist':  # Becky added if statements to determine overall shortest path by adjusted weight
+                    # length = sum(self.g.adj[paths[i]][paths[i+1]][0]['length'] for i in range(len(paths)-1))
+                    length = sum(self.g.adj[paths[i]][paths[i + 1]][0]['length_n'] for i in range(len(paths) - 1))
                 elif self.st_weight == 'dist+speed':
-                    #length = sum(self.g.adj[paths[i]][paths[i+1]][0]['seg_time'] for i in range(len(paths)-1))
-                    length = sum(self.g.adj[paths[i]][paths[i+1]][0]['seg_time_n'] for i in range(len(paths)-1))
+                    # length = sum(self.g.adj[paths[i]][paths[i+1]][0]['seg_time'] for i in range(len(paths)-1))
+                    length = sum(self.g.adj[paths[i]][paths[i + 1]][0]['seg_time_n'] for i in range(len(paths) - 1))
                 elif self.st_weight == 'dist+road_type_weight':
-                    #length = sum(self.g.adj[paths[i]][paths[i+1]][0]['rt_weighted_len'] for i in range(len(paths)-1))
-                    length = sum(self.g.adj[paths[i]][paths[i+1]][0]['rt_wght_len_n'] for i in range(len(paths)-1))
+                    # length = sum(self.g.adj[paths[i]][paths[i+1]][0]['rt_weighted_len'] for i in range(len(paths)-1))
+                    length = sum(self.g.adj[paths[i]][paths[i + 1]][0]['rt_wght_len_n'] for i in range(len(paths) - 1))
                 elif self.st_weight == 'dist+from+fire':
-                    length = sum(self.g.adj[paths[i]][paths[i+1]][0]['inv_fire_dist_n'] for i in range(len(paths)-1))
+                    length = sum(self.g.adj[paths[i]][paths[i + 1]][0]['inv_fire_dist_n'] for i in range(len(paths) - 1))
                 elif self.st_weight == 'fire+dist':
-                    length = sum(self.g.adj[paths[i]][paths[i+1]][0]['fire_leng_n'] for i in range(len(paths)-1))
+                    length = sum(self.g.adj[paths[i]][paths[i + 1]][0]['fire_leng_n'] for i in range(len(paths) - 1))
                 elif self.st_weight == 'fire+rdty_weight':
-                    length = sum(self.g.adj[paths[i]][paths[i+1]][0]['fire_rd_wght_n'] for i in range(len(paths)-1))
+                    length = sum(self.g.adj[paths[i]][paths[i + 1]][0]['fire_rd_wght_n'] for i in range(len(paths) - 1))
                 elif self.st_weight == 'quickest':
-                    #print('quickest weight, ett is used')
-                    length = sum(self.g.adj[paths[i]][paths[i+1]][0]['ett'] for i in range(len(paths)-1))
+                    # print('quickest weight, ett is used')
+                    length = sum(self.g.adj[paths[i]][paths[i + 1]][0]['ett'] for i in range(len(paths) - 1))
                 else:
                     print('BAD weight key!!! :', self.st_weight)
-                
+
                 if length < ans[0]:
                     ans[0] = length
                     ans[1] = t
-                    ans[2] = paths        
-                
+                    ans[2] = paths
+
         if ans[1] is None:
             self.isStuck = True
         else:
             self.goal = ans[1]
             self.routes = ans[2]
-            self.paths = set((self.routes[i],self.routes[i+1],0) for i in range(len(self.routes)-1))
+            self.paths = set((self.routes[i], self.routes[i + 1], 0) for i in range(len(self.routes) - 1))
             self.route_pos = 1
-            #print('!!', self.vid, 'rd', self.road.idx, 'route', self.paths, 'end', self.goal)
+            # print('!!', self.vid, 'rd', self.road.idx, 'route', self.paths, 'end', self.goal)
             self.set_route_times += 1
-    
+
     def addTo(self, road, init=False):
-        if road.isBlocked == False: #Becky don't add vehicle to blocked road
+        if road.isBlocked is False:  # Becky don't add vehicle to blocked road
             if road.add_vehicle(self):
-                road.check_in(self.vid, self.pos, 0) ## -> quickest path
-                self.road=road
+                road.check_in(self.vid, self.pos, 0)  # -> quickest path
+                self.road = road
                 if not init:
                     self.trajectory.append((self.road.idx, frame_number))
                 else:
                     self.trajectory.append((self.road.idx, 0))
                 if self.pos > self.road.length:
                     self.pos = self.road.length
-                if self.st_weight: # becky added for routing weight
+                if self.st_weight:  # becky added for routing weight
                     self.navigate(weight=self.st_weight)
                 else:
                     self.navigate()
@@ -1022,19 +1022,19 @@ class Vehicle:
                 return False
         else:
             return False
-    
-    def navigate(self, frame_number=None, target=None, weight=None): # return true if stucked after navigation
-        #print('navigate, weight', weight)
+
+    def navigate(self, frame_number=None, target=None, weight=None):  # return true if stucked after navigation
+        # print('navigate, weight', weight)
         if weight is not None:
-            #print('v', self.vid, 'weight', weight)
-            if weight == 'dist': #Becky added
-                #weight = 'length'
+            # print('v', self.vid, 'weight', weight)
+            if weight == 'dist':  # Becky added
+                # weight = 'length'
                 weight = 'length_n'
             elif weight == 'dist+speed':
-                #weight = 'seg_time'
+                # weight = 'seg_time'
                 weight = 'seg_time_n'
             elif weight == 'dist+road_type_weight':
-                #weight = 'rt_weighted_len'
+                # weight = 'rt_weighted_len'
                 weight = 'rt_wght_len_n'
             elif weight == 'dist+from+fire':
                 weight = 'inv_fire_dist_n'
@@ -1043,53 +1043,53 @@ class Vehicle:
             elif weight == 'fire+rdty_weight':
                 weight = 'fire_rd_wght_n'
             elif weight == 'quickest':
-                weight = 'ett'    
+                weight = 'ett'
         else:
             weight = 'length_n'
         if target is None:
             target = self.target
-        if type(target)==list:
-            #print('choosing target')
-            self.choose_target(target)            
+        if type(target) == list:
+            # print('choosing target')
+            self.choose_target(target)
         elif target is None or (not nx.has_path(self.g, self.road.node_j, target)):
             self.isStuck = True
             self.trajectory.append('STUCK')
         else:
             print('navigate seting routes')
-            ### Shortest Path
-            self.routes = nx.shortest_path(self.g,self.road.node_j,target,weight=weight)
-            self.paths = set((self.routes[i],self.routes[i+1],0) for i in range(len(self.routes)-1))
+            # ## Shortest Path
+            self.routes = nx.shortest_path(self.g, self.road.node_j, target, weight=weight)
+            self.paths = set((self.routes[i], self.routes[i + 1], 0) for i in range(len(self.routes) - 1))
             self.route_pos = 1
-            
+
         self.choose_next(frame_number)
         return self.isStuck
-        
+
     def handle_blocks(self, blocked_roads, target=None):
         if self.isStuck:
             return
-        
+
         if any(r in self.paths for r in blocked_roads):
             return self.navigate(weight=self.st_weight, target=target)
-        
+
     def choose_next(self, frame_number):
         if self.isStuck:
-            self.next_road = None # Freeze if cannot reach destination
-            
-            #if len(self.road.nexts) == 0:
-                #print 'Vehicle %4d entered dead end: (%d, %d, %d)'%(self.vid, self.road.node_i, self.road.node_j, self.road.key)
+            self.next_road = None  # Freeze if cannot reach destination
+
+            # if len(self.road.nexts) == 0:
+            # print 'Vehicle %4d entered dead end: (%d, %d, %d)'%(self.vid, self.road.node_i, self.road.node_j, self.road.key)
             #    self.next_road = None
-            #else:
+            # else:
             #    self.next_road = np.random.choice(self.road.nexts.values())
         else:
             if self.road.node_j == self.goal:
-                self.next_road = None # reach destination
-                self.length = 0 # "disappear" after reaching destination
+                self.next_road = None  # reach destination
+                self.length = 0  # "disappear" after reaching destination
                 self.goal_time = frame_number
                 self.trajectory.append(('GOAL', self.road.node_j, self.goal_time))
                 self.is_clear = True
             else:
                 try:
-                    self.next_road = self.road.nexts[(self.routes[self.route_pos],0)] # Go to the zero-indexed key since nx doesn't return key for shortest path
+                    self.next_road = self.road.nexts[(self.routes[self.route_pos], 0)]  # Go to the zero-indexed key since nx doesn't return key for shortest path
                 except KeyError:
                     print(self.routes, self.route_pos, self.road.nexts)
                 else:
@@ -1097,84 +1097,84 @@ class Vehicle:
 
     def xy(self, out=None):
         if out:
-            return str(self.road.geom.interpolate(self.pos).coords[0][0])+";"+str(self.road.geom.interpolate(self.pos).coords[0][1])
+            return str(self.road.geom.interpolate(self.pos).coords[0][0]) + ";" + str(self.road.geom.interpolate(self.pos).coords[0][1])
         else:
             return self.road.geom.interpolate(self.pos).coords[0]
-    
+
 class NetABM():
-    
+
     def __init__(self, g, n, bbox=None, fire_perim=None, fire_ignit_time=None, fire_act_ts_min=60, fire_des_ts_sec=10, sim_type="main", sim_number=0, reset_interval=False, start_vehicle_positons=None, nav_weight_list=None, placement_prob=None, init_strategies=None):
-        self.g=g
-        #self.g2=copy.deepcopy(g)
-        #self.g3=copy.deepcopy(g)
-        #self.g4=copy.deepcopy(g)
-        self.roads={(_[0],_[1],_[2]):Road(g, *_) for _ in g.edges(keys=True, data=True) if 'geometry' in _[3]} 
-        #self.roads2=copy.deepcopy(self.roads)
-        #print('num roads 1', len(self.roads), len(self.roads2))
-        
-        self.bbox = bbox # added by Becky
-        self.project_bbox=(project_lat_lon(bbox[1],bbox[0]),project_lat_lon(bbox[3],bbox[2]))
-        self.targets=[e[1] for e in g.edges(keys=True,data=True) if isNodeInBbox(g.nodes[e[0]], self.project_bbox) and not isNodeInBbox(g.nodes[e[1]], self.project_bbox)]
-        
+        self.g = g
+        # self.g2=copy.deepcopy(g)
+        # self.g3=copy.deepcopy(g)
+        # self.g4=copy.deepcopy(g)
+        self.roads = {(_[0], _[1], _[2]): Road(g, *_) for _ in g.edges(keys=True, data=True) if 'geometry' in _[3]}
+        # self.roads2=copy.deepcopy(self.roads)
+        # print('num roads 1', len(self.roads), len(self.roads2))
+
+        self.bbox = bbox  # added by Becky
+        self.project_bbox = (project_lat_lon(bbox[1], bbox[0]), project_lat_lon(bbox[3], bbox[2]))
+        self.targets = [e[1] for e in g.edges(keys=True, data=True) if isNodeInBbox(g.nodes[e[0]], self.project_bbox) and not isNodeInBbox(g.nodes[e[1]], self.project_bbox)]
+
         self.roads_in_bbox = [r for r in self.roads.values() if isNodeInBbox(g.nodes[r.node_i], self.project_bbox) or isNodeInBbox(g.nodes[r.node_j], self.project_bbox)]
         if len(self.roads_in_bbox) == 0:
             raise ValueError("No roads in the given bbox")
-            
+
         self.in_roads_prob = np.array([r.length for r in self.roads_in_bbox])
-        self.in_roads_prob/= sum(self.in_roads_prob)
-        self.in_roads_prob[0] += 1.0-sum(self.in_roads_prob)
-        
-        if placement_prob is not None: # sets road probabilities by household ratio
+        self.in_roads_prob /= sum(self.in_roads_prob)
+        self.in_roads_prob[0] += 1.0 - sum(self.in_roads_prob)
+
+        if placement_prob is not None:  # sets road probabilities by household ratio
             if placement_prob == 'Pct_HH_Cpd':
                 self.in_roads_prob = self.in_roads_prob * [r.hh_ratio for r in self.roads_in_bbox]
                 self.in_roads_prob[np.isnan(self.in_roads_prob)] = 0
-                self.in_roads_prob/= sum(self.in_roads_prob)
+                self.in_roads_prob /= sum(self.in_roads_prob)
             else:
                 self.in_roads_prob = self.in_roads_prob * [r.test_hh_ratio for r in self.roads_in_bbox]
                 self.in_roads_prob[np.isnan(self.in_roads_prob)] = 0
-                self.in_roads_prob/= sum(self.in_roads_prob)
-            
-            self.in_roads_prob[0] += 1.0-sum(self.in_roads_prob)
-         
+                self.in_roads_prob /= sum(self.in_roads_prob)
+
+            self.in_roads_prob[0] += 1.0 - sum(self.in_roads_prob)
+
         self.closed_roads = set()
         self.last_closed_roads = set()
         self.start_time = None
         self.sim_number = sim_number
         self.start_vehicle_positons = start_vehicle_positons
-        
-        self.sim_type = sim_type # main simulation vs optimization simulation
-        #print("sim type: ", self.sim_type)
-        self.fire_perim = fire_perim # expecting geodataframe (main sim - full, sub - 1 record of current perim)
+
+        self.sim_type = sim_type  # main simulation vs optimization simulation
+        # print("sim type: ", self.sim_type)
+        self.fire_perim = fire_perim  # expecting geodataframe (main sim - full, sub - 1 record of current perim)
         if self.fire_perim is not None:
             self.fire_perim['geom'] = self.fire_perim['geometry'].buffer(0)
-            #print("fire found")
+            # print("fire found")
         self.fire_slice = None
         self.fire_db_slice = None
-        self.fire_ignit_time = fire_ignit_time # row id for ignition feature, if None use row with least elapsed time
-        if self.fire_ignit_time == None:
+        self.fire_ignit_time = fire_ignit_time  # row id for ignition feature, if None use row with least elapsed time
+        if self.fire_ignit_time is None:
             if self.fire_perim is not None:
                 self.fire_ignit_time = self.fire_perim['SimTime'].min()
-        self.fire_act_ts_min = fire_act_ts_min # how many minutes between actual output updates (usually 60)?
-        self.fire_des_ts_sec = fire_des_ts_sec # how many seconds desired between updates - can "speedup" or "slowdown" spread
-        if reset_interval==True:
-            self.fire_perim['SimTime'].replace(sorted(list(set(self.fire_perim['SimTime'].values))), 
-                                [(x+1)*fire_act_ts_min for x in range(len(set(self.fire_perim['SimTime'].values)))], 
+        self.fire_act_ts_min = fire_act_ts_min  # how many minutes between actual output updates (usually 60)?
+        self.fire_des_ts_sec = fire_des_ts_sec  # how many seconds desired between updates - can "speedup" or "slowdown" spread
+        if reset_interval is True:
+            self.fire_perim['SimTime'].replace(sorted(list(set(self.fire_perim['SimTime'].values))),
+                                [(x + 1) * fire_act_ts_min for x in range(len(set(self.fire_perim['SimTime'].values)))],
                                 inplace=True)
         self.init_strategies = init_strategies
         self.congestion_dict = {}
         self.tot_num_roads_in_bbox = len(self.roads_in_bbox)
         self.veh_status = []
         self.edge_congestion = []
-        
-        #if target_lat_lon is not None:
+
+        # if target_lat_lon is not None:
         #    self.target_xy = project_lat_lon(*target_lat_lon)
         #    self.target = ox.get_nearest_node(g, self.target_xy[::-1], method='euclidean')
-        #else:
+        # else:
         #    self.target_xy = None
         #    self.target = None
-        
+
         for r in self.roads:
-            self.roads[r].nexts={(x,k):self.roads[r[1],x,k] for x in g.adj[r[1]] for k in g.adj[r[1]][x] if 'geometry' in g.adj[r[1]][x][k]}
+            self.roads[r].nexts = {(x,k):self.roads[r[1], x, k] for x in g.adj[r[1]] for k in g.adj[r[1]][x] if 'geometry' in g.adj[r[1]][x][k]}
         #print('Initial ett test')
         for r in self.roads_in_bbox:
             self.g[r.idx[0]][r.idx[1]][r.idx[2]]['ett'] = r.length/r.speed
