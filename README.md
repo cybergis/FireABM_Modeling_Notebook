@@ -27,7 +27,9 @@ The code models the process of evacuation on a road network in which roads are p
 This package contains all files needed to run experiments and generate output used in the forthcoming manuscript.
 
 ### How to run the Jupyter Notebook
-No setup is needed, just copy this repository to your Jupyter notebook file system and run the notebook.
+No setup is needed, just copy this repository to your Jupyter notebook file system in [CyberGISX](https://cybergisxhub.cigi.illinois.edu/) and run the notebook.
+
+Or, click the link: [Launch with CyberGISX](https://cybergisx.cigi.illinois.edu/hub/user-redirect/git-pull?repo=https%3A%2F%2Fgithub.com%2Fcybergis%2FFireABM_Modeling_Notebook&urlpath=tree%2FFireABM_Modeling_Notebook%2FFireABM_Demo_Notebook.ipynb&branch=master)
 
 ### How to run a simulation on Keeling/Virtual Roger (HPC)
 See [0_Replicating_the_manuscript_experimental_procedure.txt](DOCUMENTATION/0_Replicating_the_manuscript_experimental_procedure.txt) for steps taken to run simulations used for the manuscript
