@@ -1,5 +1,5 @@
 
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+![GitHub](https://img.shields.io/github/license/cybergis/FireABM_Modeling_Notebook?style=plastic)
 ## Evaluating Implications of Problematic Routing Assumptions in Spatially Explicit Agent-Based Models of Wildfire Evacuation
 ### Code Base Documentation
 
