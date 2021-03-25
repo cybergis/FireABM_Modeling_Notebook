@@ -27,9 +27,13 @@ The code models the process of evacuation on a road network in which roads are p
 This package contains all files needed to run experiments and generate output used in the forthcoming manuscript.
 
 ### How to run the Jupyter Notebook
-No setup is needed, just copy this repository to your Jupyter notebook file system in [CyberGISX](https://cybergisxhub.cigi.illinois.edu/) and run the notebook.
+You can just copy this repository to your own Jupyter notebook file system, install any missing dependencies (see [requirements.txt](requirements.txt), and run the notebook.
 
-Or, click the link: [Launch with CyberGISX](https://cybergisx.cigi.illinois.edu/hub/user-redirect/git-pull?repo=https%3A%2F%2Fgithub.com%2Fcybergis%2FFireABM_Modeling_Notebook&urlpath=tree%2FFireABM_Modeling_Notebook%2FFireABM_Demo_Notebook.ipynb&branch=master)
+An easier way is to open the notebook directly with [CyberGISX](https://cybergisxhub.cigi.illinois.edu/) (requires registration) by clicking this link: [Launch with CyberGISX](https://cybergisx.cigi.illinois.edu/hub/user-redirect/git-pull?repo=https%3A%2F%2Fgithub.com%2Fcybergis%2FFireABM_Modeling_Notebook&urlpath=tree%2FFireABM_Modeling_Notebook%2FFireABM_Demo_Notebook.ipynb&branch=master)
+
+To register for CyberGISX you will need a GitHub account and a working email address. Go to the [registration page](https://cybergisxhub.cigi.illinois.edu/registration/) and fill out the form with your information. You may need to validate your email address. Once you have registered you will be able to directly open this notebook in CyberGISX using the above link.
+
+This notebook and repository will also be available on the CyberGISX community notebook page to view and for users to run using CyberGISX (link TBD).
 
 ### How to run a simulation on Keeling/Virtual Roger (HPC)
 See [0_Replicating_the_manuscript_experimental_procedure.txt](DOCUMENTATION/0_Replicating_the_manuscript_experimental_procedure.txt) for steps taken to run simulations used for the manuscript
