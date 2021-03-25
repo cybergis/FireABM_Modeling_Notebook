@@ -1174,96 +1174,96 @@ class NetABM():
         #    self.target = None
 
         for r in self.roads:
-            self.roads[r].nexts = {(x,k):self.roads[r[1], x, k] for x in g.adj[r[1]] for k in g.adj[r[1]][x] if 'geometry' in g.adj[r[1]][x][k]}
-        #print('Initial ett test')
+            self.roads[r].nexts = {(x, k): self.roads[r[1], x, k] for x in g.adj[r[1]] for k in g.adj[r[1]][x] if 'geometry' in g.adj[r[1]][x][k]}
+        # print('Initial ett test')
         for r in self.roads_in_bbox:
-            self.g[r.idx[0]][r.idx[1]][r.idx[2]]['ett'] = r.length/r.speed
+            self.g[r.idx[0]][r.idx[1]][r.idx[2]]['ett'] = r.length / r.speed
             assert self.g[r.idx[0]][r.idx[1]][r.idx[2]]['ett'] > 0
             self.g[r.idx[0]][r.idx[1]][r.idx[2]]['o_ett'] = self.g[r.idx[0]][r.idx[1]][r.idx[2]]['ett']
-            
-        self.road_length=np.array([r.geom.length for r in self.roads.values()])
-        self.road_length/=sum(self.road_length)
-            
+
+        self.road_length = np.array([r.geom.length for r in self.roads.values()])
+        self.road_length /= sum(self.road_length)
+
         if sim_type == "main":
-            
+
             if self.fire_perim is not None:
                 self.spread_initial_fire(1.0)
-            
+
             if self.init_strategies is not None:
                 self.strat_per_veh = np.random.choice(list(self.init_strategies.keys()), n, p=list(self.init_strategies.values()))
-                self.vehicles=[Vehicle(g,i,target=self.targets, st_weight=self.strat_per_veh[i]) for i in range(n)]
+                self.vehicles = [Vehicle(g, i, target=self.targets, st_weight=self.strat_per_veh[i]) for i in range(n)]
             else:
-                self.vehicles=[Vehicle(g,i,target=self.targets) for i in range(n)]
-  
+                self.vehicles = [Vehicle(g, i, target=self.targets) for i in range(n)]
+
             for v in self.vehicles:
                 while not v.addTo(np.random.choice(self.roads_in_bbox, p=self.in_roads_prob), init=True):
                     pass
-                
+
         else:
             # take vehicle positions from current location in main simulation
-            self.vehicles=[Vehicle(g,i[0],pos=i[2],target=self.targets, st_weight=nav_weight_list[i[0]]) for i in self.start_vehicle_positons]
+            self.vehicles = [Vehicle(g, i[0], pos=i[2], target=self.targets, st_weight=nav_weight_list[i[0]]) for i in self.start_vehicle_positons]
             for i, v in enumerate(self.vehicles):
                 for r in self.roads.values():
                     if r.idx == self.start_vehicle_positons[i][1]:
                         v.addTo(r, init=True)
-                        
-        self.vehicle_colors=[plt.cm.rainbow(float(_)/n) if not self.vehicles[_].isStuck else (0.0,0.0,0.0,1.0) for _ in range(n)]
-        
+
+        self.vehicle_colors = [plt.cm.rainbow(float(_) / n) if not self.vehicles[_].isStuck else (0.0, 0.0, 0.0, 1.0) for _ in range(n)]
+
         self.initial_veh_coords = self.list_veh_coords()
         self.report_congestion(0)
         print('END init')
-        
+
     def move(self, frame_number, timestep=1):
-        #print('move frame_number:',frame_number, 'timestep:', timestep)
+        # print('move frame_number:',frame_number, 'timestep:', timestep)
         for r in self.roads.values():
             r.move(frame_number, timestep)
         for r in self.roads.values():
             r.resolve_requests(frame_number)
         for r in self.roads.values():
             r.sync_pos()
-                             
+
     def mutate_speed(self, prob=0.8):
         for r in self.roads.values():
             r.mutate_speed(prob)
-    
+
     def mutate_block(self, prob=0.1):
         self.last_closed_roads = set(r.idx for r in self.roads_in_bbox if r.mutate_block(prob))
-        if len(self.last_closed_roads) > 0: # could be accelarated with if self.last_closed_roads
-            # TODO!! spread information to vehicles and navigate upon request            
-            self.g.remove_edges_from(self.last_closed_roads)            
+        if len(self.last_closed_roads) > 0:  # could be accelarated with if self.last_closed_roads
+            # TODO!! spread information to vehicles and navigate upon request
+            self.g.remove_edges_from(self.last_closed_roads)
             self.closed_roads.update(self.last_closed_roads)
             for i in range(len(self.vehicles)):
                 if (not self.vehicles[i].isStuck) and self.vehicles[i].handle_blocks(self.last_closed_roads):
-                    self.vehicle_colors[i]=(0.0,0.0,0.0,1.0) # black                                        
-        #assert all(self.roads[r].isBlocked for r in self.closed_roads)
-        #assert all(not self.roads[r].isBlocked for r in self.roads if r not in self.closed_roads)
-        
-    def update_quickest(self): # -> quickest route
-        #print('update quickest')
+                    self.vehicle_colors[i] = (0.0, 0.0, 0.0, 1.0)  # black                                  
+        # assert all(self.roads[r].isBlocked for r in self.closed_roads)
+        # assert all(not self.roads[r].isBlocked for r in self.roads if r not in self.closed_roads)
+
+    def update_quickest(self):  # -> quickest route
+        # print('update quickest')
         changed_ett = set()
         for r in self.roads_in_bbox:
-            if len(r.ett) < 1: # no vehicles
+            if len(r.ett) < 1:  # no vehicles
                 continue
             try:
-                avg_ett = sum(_[0] for _ in r.ett.values())/len(r.ett)
+                avg_ett = sum(_[0] for _ in r.ett.values()) / len(r.ett)
                 net_edge = self.g[r.idx[0]][r.idx[1]][r.idx[2]]
-                
-                #print('rid:', r.idx, 'ett val', r.ett, 'average ett:', round(avg_ett, 3), 'netedge ett:', round(net_edge['ett'], 3), 'road speed:', r.speed, 'rlength', r.length, 'rett:', r.length/r.speed)
+
+                # print('rid:', r.idx, 'ett val', r.ett, 'average ett:', round(avg_ett, 3), 'netedge ett:', round(net_edge['ett'], 3), 'road speed:', r.speed, 'rlength', r.length, 'rett:', r.length/r.speed)
                 if (net_edge['o_ett'] - avg_ett) > 1e-7:
-                    print('***',  round(net_edge['o_ett'], 3),  round(avg_ett, 3))
-                if abs(avg_ett - net_edge['ett'])/net_edge['ett'] > 0.5:
-                    changed_ett.add(r.idx+(avg_ett,))
+                    print('***', round(net_edge['o_ett'], 3), round(avg_ett, 3))
+                if abs(avg_ett - net_edge['ett']) / net_edge['ett'] > 0.5:
+                    changed_ett.add(r.idx + (avg_ett,))
                     print('Changing rid:', r.idx, 'from', round(net_edge['ett'], 3), 'to', round(avg_ett, 3), '..Orig=', round(net_edge['o_ett'], 3))
             except KeyError:
                 pass
 
-        for i,j,k,t in changed_ett:
+        for i, j, k, t in changed_ett:
             try:
                 self.g[i][j][k]['ett'] = t
             except KeyError:
                 pass
 
-        if 'quickest' in self.init_strategies.keys(): # renavigate with updated weights
+        if 'quickest' in self.init_strategies.keys():  # renavigate with updated weights
             if len(changed_ett) > 0:
                 for i in range(len(self.vehicles)):
                     self.vehicles[i].navigate(weight=self.vehicles[i].st_weight, target=self.targets)
@@ -1271,11 +1271,11 @@ class NetABM():
 
     def select_fire_slice(self, update_number):
         now_time = self.fire_ignit_time + (update_number * self.fire_act_ts_min)
-        #print("fire sliced....", update_number, ", ", now_time)
-        #self.fire_slice = self.fire_perim[self.fire_perim["SimTime"]==now_time][self.fire_perim[self.fire_perim["SimTime"]==now_time].is_valid].unary_union # BECKY in future check for validity before inport? Why not valid
-        self.fire_slice = self.fire_perim[self.fire_perim["SimTime"]==now_time]
-        #print ("slice", type(self.fire_slice))
-               
+        # print("fire sliced....", update_number, ", ", now_time)
+        # self.fire_slice = self.fire_perim[self.fire_perim["SimTime"]==now_time][self.fire_perim[self.fire_perim["SimTime"]==now_time].is_valid].unary_union # BECKY in future check for validity before inport? Why not valid
+        self.fire_slice = self.fire_perim[self.fire_perim["SimTime"] == now_time]
+        # print ("slice", type(self.fire_slice))
+
     def spread_initial_fire(self, update_number):
         print("fire initially spreads....", update_number)
         self.select_fire_slice(update_number)
@@ -1286,8 +1286,8 @@ class NetABM():
                     temp_closed_roads.add(r.idx)
                     r.set_block()
         self.last_closed_roads = temp_closed_roads
-        if len(self.last_closed_roads) > 0:           
-            self.g.remove_edges_from(self.last_closed_roads)            
+        if len(self.last_closed_roads) > 0:
+            self.g.remove_edges_from(self.last_closed_roads)
             self.closed_roads.update(self.last_closed_roads)
             
         if any(skey in self.init_strategies.keys() for skey in ['fire+dist', 'fire+rdty_weight']):
@@ -1296,279 +1296,279 @@ class NetABM():
                 self.g = combine_attribute(self.g, ['length_n', 'inv_fire_dist_n'], [0.5, 0.5], 'fire_leng_n')
             if self.init_strategies.get('fire+rdty_weight', 0) > 0:
                 self.g = combine_attribute(self.g, ['rt_wght_len_n', 'inv_fire_dist_n'], [0.5, 0.5], 'fire_rd_wght_n')
-                    
+
     def spread_fire(self, update_number):
         print("fire spreads....", update_number)
         self.select_fire_slice(update_number)
         temp_closed_roads = set()
         for r in self.roads_in_bbox:
             for fidx in range(len(self.fire_slice)):
-                #print(type(r), type(fidx)) 
+                # print(type(r), type(fidx))
                 if r.geom.intersects(self.fire_slice.iloc[fidx].geom):
                     temp_closed_roads.add(r.idx)
                     r.set_block()
         self.last_closed_roads = temp_closed_roads
-        #self.last_closed_roads = set(r.idx for r in self.roads_in_bbox if r.geom.intersects(self.fire_slice))
-        if len(self.last_closed_roads) > 0:           
-            self.g.remove_edges_from(self.last_closed_roads)            
+        # self.last_closed_roads = set(r.idx for r in self.roads_in_bbox if r.geom.intersects(self.fire_slice))
+        if len(self.last_closed_roads) > 0:
+            self.g.remove_edges_from(self.last_closed_roads)
             self.closed_roads.update(self.last_closed_roads)
-            
+
             if any(skey in self.init_strategies.keys() for skey in ['fire+dist', 'fire+rdty_weight']):
                 self.g = add_fire_distance(self.g, self.fire_slice, norm=True, inv=True)
                 if self.init_strategies.get('fire+dist', 0) > 0:
                     self.g = combine_attribute(self.g, ['length_n', 'inv_fire_dist_n'], [1.0, 0.0], 'fire_leng_n')
                 if self.init_strategies.get('fire+rdty_weight', 0) > 0:
                     self.g = combine_attribute(self.g, ['rt_wght_len_n', 'inv_fire_dist_n'], [1.0, 0.0], 'fire_rd_wght_n')
-            
+
             for i in range(len(self.vehicles)):
                 if (not self.vehicles[i].isStuck) and self.vehicles[i].handle_blocks(self.last_closed_roads, target=self.targets):
-                    self.vehicle_colors[i]=(0.0,0.0,0.0,1.0) # black 
-                    
-        
-                            
+                    self.vehicle_colors[i] = (0.0, 0.0, 0.0, 1.0)  # black
+ 
+
+
     def show(self, ax, number_veh=False):
-        #return ax.scatter(*zip(*[_.xy() for _ in self.vehicles]), s=20) 
-        
-        #ax.scatter(*zip(*[_.xy() for _ in self.vehicles]), c=self.vehicle_colors, s=20, zorder=4)
-    
+        # return ax.scatter(*zip(*[_.xy() for _ in self.vehicles]), s=20)
+
+        # ax.scatter(*zip(*[_.xy() for _ in self.vehicles]), c=self.vehicle_colors, s=20, zorder=4)
+
         if number_veh:
             ax.scatter(*zip(*[_.xy() for _ in self.vehicles]), c=self.vehicle_colors, s=20, zorder=4)
-            #[print(_.xy()[0], _.xy()[1], _.vid) for _ in self.vehicles]
+            # [print(_.xy()[0], _.xy()[1], _.vid) for _ in self.vehicles]
             [ax.text(_.xy()[0], _.xy()[1], str(_.vid), zorder=4) for _ in self.vehicles]
-                #ax.text(_.xy()[0], _.xy()[1], str(_.vid), zorder=4)
+            # ax.text(_.xy()[0], _.xy()[1], str(_.vid), zorder=4)
         else:
             return ax.scatter(*zip(*[_.xy() for _ in self.vehicles]), c=self.vehicle_colors, s=20, zorder=4)
-            
-        #temp_vehicle_colors = self.vehicle_colors.copy()
-        #for i, v in enumerate(self.vehicles):
+
+        # temp_vehicle_colors = self.vehicle_colors.copy()
+        # for i, v in enumerate(self.vehicles):
         #    if v.road is None:
         #        temp_vehicle_colors.pop(i)
-                
-        #return ax.scatter(*zip(*[_.xy() for _ in self.vehicles if _.road is not None]), c=temp_vehicle_colors, s=20) # Becky Someting weird with geometry~   
-        
+
+        # return ax.scatter(*zip(*[_.xy() for _ in self.vehicles if _.road is not None]), c=temp_vehicle_colors, s=20) # Becky Someting weird with geometry~
+
         # Vehicle generation should take capacity constraint as well
-        #inds=np.random.choice(range(len(self.roads)), n ,replace=True)
-        #self.vehicles=[Vehicle(g, self.roads[_]) for _ in inds]
-    
+        # inds=np.random.choice(range(len(self.roads)), n ,replace=True)
+        # self.vehicles=[Vehicle(g, self.roads[_]) for _ in inds]
+
     def list_veh_coords(self, out=None):
         if out:
-            pos_lost = ["("+str(_.vid)+';'+str(_.xy(out='yes'))+")" for _ in self.vehicles]
+            pos_lost = ["(" + str(_.vid) + ';' + str(_.xy(out='yes')) + ")" for _ in self.vehicles]
             return (" ").join(pos_lost)
         else:
             return ([(_.vid, _.xy()) for _ in self.vehicles])
-    
-    
+
+
     def list_veh_positions(self):
         return ([(_.vid, _.road.idx, _.pos) for _ in self.vehicles])
-        
+
     def pickExample(self):
         for i in self.roads.values():
-            if len(i.vehicles)>1:
+            if len(i.vehicles) > 1:
                 return i
-            
+
     def report_congestion(self, time_stamp):
         roads_with_veh = 0
         tc_tot_veh = len(self.vehicles)
         rc_tot_clear_veh = sum([_.is_clear for _ in self.vehicles])
         rc_tot_stuck_veh = sum([_.isStuck for _ in self.vehicles])
-        
+
         for r in self.roads_in_bbox:
             (num_veh, veh_per_len) = r.report_veh_num()
             if num_veh > 0:
                 roads_with_veh = roads_with_veh + 1
                 if r.idx in self.congestion_dict.keys():
-                    self.congestion_dict[str(r.idx)].append({'ts':time_stamp, 'numv':num_veh, 'vplen':round(veh_per_len, 5)})
+                    self.congestion_dict[str(r.idx)].append({'ts': time_stamp, 'numv': num_veh, 'vplen': round(veh_per_len, 5)})
                 else:
-                    self.congestion_dict[str(r.idx)] = [{'ts':time_stamp, 'numv':num_veh, 'vplen':round(veh_per_len, 5)}]
-                    
-        self.veh_status.append({'ts':time_stamp, 'clear':rc_tot_clear_veh, 'stuck':rc_tot_stuck_veh, 'pctclear':round(rc_tot_clear_veh/tc_tot_veh, 3)})
-        
-        self.edge_congestion.append({'ts':time_stamp, 'tot_rd_veh':roads_with_veh, 'ave_veh_p_rd':round(tc_tot_veh/roads_with_veh, 3)})
+                    self.congestion_dict[str(r.idx)] = [{'ts': time_stamp, 'numv': num_veh, 'vplen': round(veh_per_len, 5)}]
+
+        self.veh_status.append({'ts': time_stamp, 'clear': rc_tot_clear_veh, 'stuck': rc_tot_stuck_veh, 'pctclear': round(rc_tot_clear_veh / tc_tot_veh, 3)})
+
+        self.edge_congestion.append({'ts': time_stamp, 'tot_rd_veh': roads_with_veh, 'ave_veh_p_rd': round(tc_tot_veh / roads_with_veh, 3)})
 
     def run(self, nsteps=None, mutate_rate=0.005, update_interval=100, save_args=None, opt_interval=35, strategies=['dist', 'dist+speed'], opt_reps=1, mix_strat=True, congest_time=25):
         self.start_time = time.time()
-        #print('num roads 2', len(self.roads))
-        #self.opt_counter = 2
+        # print('num roads 2', len(self.roads))
+        # self.opt_counter = 2
         self.drive_strat_list = None
         self.full_opt_results = {}
         self.strategies = strategies
         self.mix_strat = mix_strat
         self.congest_time = congest_time
-            
-        #print('start_main_sim body')
+
+        # print('start_main_sim body')
         if self.fire_perim is not None:
             update_interval = self.fire_des_ts_sec
         save = True
         self.isFinished = False
         if save_args is None or len(save_args) < 3:
-            save=False
+            save = False
             print("data from this run won't be saved!")
             for i in range(steps):
                 self.move()
                 if i % update_interval == 0:
                     self.mutate_block(mutate_rate)
-        else:  
+        else:
             if len(save_args) == 3:
-                fig, ax, filename = save_args 
+                fig, ax, filename = save_args
             else:
-                fig, ax, filename, result_file, folder, treatment_no, rep_no, seed, treat_desc, exp_desc, exp_no, nb_no, rd_grph_pkl = save_args 
-                
-                results_cont_folder = str(exp_no)+'files'
-                movie_cont_folder = str(exp_no)+'videos'
-                traj_cont_folder = str(exp_no)+'trajs'
+                fig, ax, filename, result_file, folder, treatment_no, rep_no, seed, treat_desc, exp_desc, exp_no, nb_no, rd_grph_pkl = save_args
+
+                results_cont_folder = str(exp_no) + 'files'
+                movie_cont_folder = str(exp_no) + 'videos'
+                traj_cont_folder = str(exp_no) + 'trajs'
                 if not os.path.isdir(os.path.join(folder, results_cont_folder)):
                     os.mkdir(os.path.join(folder, results_cont_folder))
                 if not os.path.isdir(os.path.join(folder, movie_cont_folder)):
                     os.mkdir(os.path.join(folder, movie_cont_folder))
                 if not os.path.isdir(os.path.join(folder, traj_cont_folder)):
                     os.mkdir(os.path.join(folder, traj_cont_folder))
-                
-                filename = filename+"_"+str(treatment_no)+"_"+str(rep_no)+"_seed"+str(seed)+'_tspt_'+str(datetime.now().strftime("%d-%m-%y_%H-%M"))+"_nbno_"+str(nb_no)+"_expno_"+str(exp_no)+".mp4"
-                
-                result_file = result_file+"_"+str(treatment_no)+"_"+str(rep_no)+"_seed"+str(seed)+'_tspt_'+str(datetime.now().strftime("%d-%m-%y_%H-%M"))+"_nbno_"+str(nb_no)+"_expno_"+str(exp_no)+".txt"
-                
-                trajectory_file = filename+"_traj_"+str(treatment_no)+"_"+str(rep_no)+"_seed"+str(seed)+'_tspt_'+str(datetime.now().strftime("%d-%m-%y_%H-%M"))+"_nbno_"+str(nb_no)+"_expno_"+str(exp_no)+".txt"
-                
+
+                filename = filename + "_" + str(treatment_no) + "_" + str(rep_no) + "_seed" + str(seed) + '_tspt_' + str(datetime.now().strftime("%d-%m-%y_%H-%M")) + "_nbno_" + str(nb_no) + "_expno_" + str(exp_no) + ".mp4"
+
+                result_file = result_file + "_" + str(treatment_no) + "_" + str(rep_no) + "_seed" + str(seed) + '_tspt_' + str(datetime.now().strftime("%d-%m-%y_%H-%M")) + "_nbno_" + str(nb_no) + "_expno_" + str(exp_no) + ".txt"
+
+                trajectory_file = filename + "_traj_" + str(treatment_no) + "_" + str(rep_no) + "_seed" + str(seed) + '_tspt_' + str(datetime.now().strftime("%d-%m-%y_%H-%M")) + "_nbno_" + str(nb_no) + "_expno_" + str(exp_no) + ".txt"
+
                 filename = os.path.join(folder, movie_cont_folder, filename)
-          
-            ax.add_patch(patches.Rectangle(self.project_bbox[0], self.project_bbox[1][0]-self.project_bbox[0][0], self.project_bbox[1][1]-self.project_bbox[0][1], fill=False, edgecolor='r'))
-            #if self.target_xy is not None:
+
+            ax.add_patch(patches.Rectangle(self.project_bbox[0], self.project_bbox[1][0] - self.project_bbox[0][0], self.project_bbox[1][1] - self.project_bbox[0][1], fill=False, edgecolor='r'))
+            # if self.target_xy is not None:
             #    ax.scatter(*zip(self.target_xy),marker='x',s=800)
-            r=self.show(ax)
+            r = self.show(ax)
 
             def runFrame():
-                i=0
+                i = 0
                 while not self.isFinished:
-                    i+=1
+                    i += 1
                     yield i
-                    
-                         
+
+
             self.one_flag = []
             def update(frame_number):
-                #print('.', end="")
-                if frame_number == 1: #catch duplicate frame number
+                # print('.', end="")
+                if frame_number == 1:  # catch duplicate frame number
                     self.one_flag.append(frame_number)
-                #print('frame_number', frame_number)
+                # print('frame_number', frame_number)
                 if self.isFinished:
                     return
- # !!! reset closed roads, need to confirm no removal
-                
-                #initial wildfire location
-        
-                    
-                #if self.fire_perim is not None:
+                # !!! reset closed roads, need to confirm no removal
+
+                # initial wildfire location
+
+
+                # if self.fire_perim is not None:
                 #    if frame_number == 1:
                 #        self.spread_fire(1.0)
-                
+
                 if len(self.one_flag) == 2:
-                    self.one_flag = [] 
-                    #print('duplcate frame no 1')
+                    self.one_flag = []
+                    # print('duplcate frame no 1')
                     return
                 self.move(frame_number)
                 r.set_offsets([_.xy() for _ in self.vehicles])
-                
+
                 if not any(v.last_move for v in self.vehicles):
                     self.isFinished = True
-                    self.report_congestion(math.ceil(frame_number/self.congest_time)*self.congest_time)
-                    #print 'Evacuation completed at time: %d'%frame_number   
-                    
-                   # if seed_number:
-                   #    print("Seed_number: ", seed_number)
+                    self.report_congestion(math.ceil(frame_number / self.congest_time) * self.congest_time)
+                    # print 'Evacuation completed at time: %d'%frame_number
+
+                    # if seed_number:
+                    #    print("Seed_number: ", seed_number)
                     self.veh_clear_times = [(v.vid, v.goal_time) for v in self.vehicles]
-                    
+
                     self.veh_strat = [(v.vid, v.st_weight) for v in self.vehicles]
-                    
+
                     self.strat_list = [v.st_weight for v in self.vehicles]
                     self.strat_counter = Counter(self.strat_list)
-                    
+
                     if result_file:
                         with open(os.path.join(folder, results_cont_folder, result_file), 'w') as out_file:
                             csv_writer = csv.writer(out_file, delimiter='\t')
-                            
-                         #   result_header = ['Video_fn', 'Result_fn', 'RG_file', 
-                         #                    'Treat_no', 'Rep_no', 'Seed',
-                         #                    'Elpsd_time_sec', 'Elpsd_time_TS',
-                         #                    'Total_cars', 'Stuck_cars', 
-                         #                    'Num_rds_in_bbox'
-                         #                    'Finish_time', 
-                         #                    'Treat_desc', 'veh_by_strat',
-                         #                    'Veh_strat', 'Veh_clear_times', 'Exp_desc',
-                         #                    'Exp_no', 'NB_no', 'Veh_stat_by_time',
-                         #                    'Init_Veh_coords', 'Veh_by_edge']
+
+                            #   result_header = ['Video_fn', 'Result_fn', 'RG_file',
+                            #                    'Treat_no', 'Rep_no', 'Seed',
+                            #                    'Elpsd_time_sec', 'Elpsd_time_TS',
+                            #                    'Total_cars', 'Stuck_cars',
+                            #                    'Num_rds_in_bbox'
+                            #                    'Finish_time',
+                            #                    'Treat_desc', 'veh_by_strat',
+                            #                    'Veh_strat', 'Veh_clear_times', 'Exp_desc',
+                            #                    'Exp_no', 'NB_no', 'Veh_stat_by_time',
+                            #                    'Init_Veh_coords', 'Veh_by_edge']
                             result_header = ['Exp_no', 'NB_no',
-                                             'Treat_no', 'Rep_no', 'Seed', 
+                                             'Treat_no', 'Rep_no', 'Seed',
                                              'Elpsd_time_TS',
-                                             'Total_cars', 'Stuck_cars', 
+                                             'Total_cars', 'Stuck_cars',
                                              'Num_rds_in_bbox',
                                              'veh_by_strat',
                                              'Finish_time',
-                                             'Treat_desc', 'Exp_desc', 'RG_file', 
+                                             'Treat_desc', 'Exp_desc', 'RG_file',
                                              'Veh_stat_by_time',
                                              'Cong_by_time',
                                              'Veh_by_edge',
                                              'Init_Veh_coords'
-                                            ]
-                            
-                         #   result_row = [str(i) for i in [
-                         #       filename, result_file, rd_grph_pkl,
-                         #       treatment_no, rep_no, seed,
-                         #       round(time.time()-self.start_time, 2), str(frame_number),
-                         #       len(self.vehicles) , str(sum([_.isStuck for _ in self.vehicles])),
-                         #       self.tot_num_roads_in_bbox,
-                         #       datetime.now().strftime("%d-%m-%y_%H-%M"), 
-                         #       treat_desc, self.strat_counter, 
-                         #       self.veh_strat, self.veh_clear_times, exp_desc,
-                         #       exp_no, nb_no, self.veh_status,
-                         #       self.initial_veh_coords, self.congestion_dict]] 
+                                             ]
+
+                            #   result_row = [str(i) for i in [
+                            #       filename, result_file, rd_grph_pkl,
+                            #       treatment_no, rep_no, seed,
+                            #       round(time.time()-self.start_time, 2), str(frame_number),
+                            #       len(self.vehicles) , str(sum([_.isStuck for _ in self.vehicles])),
+                            #       self.tot_num_roads_in_bbox,
+                            #       datetime.now().strftime("%d-%m-%y_%H-%M"),
+                            #       treat_desc, self.strat_counter,
+                            #       self.veh_strat, self.veh_clear_times, exp_desc,
+                            #       exp_no, nb_no, self.veh_status,
+                            #       self.initial_veh_coords, self.congestion_dict]]
                             result_row = [str(i) for i in [exp_no, nb_no,
                                 treatment_no, rep_no, seed,
                                 str(frame_number),
-                                len(self.vehicles), str(sum([_.isStuck for _ in self.vehicles])), 
+                                len(self.vehicles), str(sum([_.isStuck for _ in self.vehicles])),
                                 self.tot_num_roads_in_bbox,
                                 [(st, self.strat_counter[st]) for st in self.strat_counter.keys()],
                                 datetime.now().strftime("%d-%m-%y_%H-%M"),
                                 treat_desc, exp_desc, rd_grph_pkl,
                                 self.veh_status,
-                                self.edge_congestion,                           
+                                self.edge_congestion,
                                 self.congestion_dict,
                                 self.initial_veh_coords
-                            ]] 
-                            
+                            ]]
+
                             csv_writer.writerow(result_header)
                             csv_writer.writerow(result_row)
-                        
+
                         with open(os.path.join(folder, traj_cont_folder, trajectory_file), 'w') as out_file:
                             csv_writer = csv.writer(out_file, delimiter='\t')
                             for v in self.vehicles:
                                 csv_writer.writerow([v.vid, v.trajectory])
-                        
+
                     else:
-                        print(self.sim_type, "simulation complete!\n--Elapsed time (sec):", round(time.time()-self.start_time, 2), "Time steps -", ':'+str(frame_number)+':', "File -", filename, "Update interval -", update_interval, "Mutation rate -", ':'+str(mutate_rate)+':', "Total Cars -", len(self.vehicles), "Stuck Cars -", ':'+str(sum([_.isStuck for _ in self.vehicles])))
-                    
-                #r.set_color([plt.cm.RdYlGn(_.last_move) for _ in self.vehicles])  ## set vehicle colors based on speed
-                
+                        print(self.sim_type, "simulation complete!\n--Elapsed time (sec):", round(time.time() - self.start_time, 2), "Time steps -", ':' + str(frame_number) + ':', "File -", filename, "Update interval -", update_interval, "Mutation rate -", ':' + str(mutate_rate) + ':', "Total Cars -", len(self.vehicles), "Stuck Cars -", ':' + str(sum([_.isStuck for _ in self.vehicles])))
+
+                # r.set_color([plt.cm.RdYlGn(_.last_move) for _ in self.vehicles])  ## set vehicle colors based on speed
+
                 if not self.isFinished:
                     if frame_number % self.congest_time == 0:
-                        #print('record congestion at', frame_number)
+                        # print('record congestion at', frame_number)
                         self.report_congestion(frame_number)
                     if frame_number % update_interval == 0:
                         if self.fire_perim is None:
                             self.mutate_block(mutate_rate)
                         else:
-                            #print('spreading, frame_number', frame_number)
-                            self.spread_fire((frame_number/update_interval)+1)
+                            # print('spreading, frame_number', frame_number)
+                            self.spread_fire((frame_number / update_interval) + 1)
 
                     if 'quickest' in self.init_strategies.keys():
                         self.update_quickest()
-                  
+
                 # displays closed roads
-                ax.add_collection(collections.LineCollection([list(zip(*self.roads[idx].geom.xy)) for idx in self.last_closed_roads], colors='black')) # Becky changed s to self, changed zip function
+                ax.add_collection(collections.LineCollection([list(zip(*self.roads[idx].geom.xy)) for idx in self.last_closed_roads], colors='black'))  # Becky changed s to self, changed zip function
                 ax.scatter([self.g.nodes[idx[0]]['x'] for idx in self.last_closed_roads],
                            [self.g.nodes[idx[0]]['y'] for idx in self.last_closed_roads],
                            marker='D',
                            c='orange',
                            s=200)
-                
+
                 # display fire
                 if self.fire_slice is not None:
                     for fidx in range(len(self.fire_slice)):
@@ -1585,14 +1585,14 @@ class NetABM():
                             print("fire slice something else")
 
             if nsteps is None:
-                frame=runFrame
+                frame = runFrame
             else:
-                frame=nsteps
+                frame = nsteps
             anim = animation.FuncAnimation(fig, update, frames=frame, interval=100, save_count=1000)
             anim.save(filename)
-            
-            #if self.sim_type == "secondary":
+
+            # if self.sim_type == "secondary":
             #    # {vid:(strategy, time), vid:(strategy, time)...}
             #    return [(_.vid, _.goal_time, _.st_weight) for _ in self.vehicles]
-            
-            #return HTML('<video width="800" controls><source src="%s" type="video/mp4"></video>'%filename)
+
+            # return HTML('<video width="800" controls><source src="%s" type="video/mp4"></video>'%filename)
