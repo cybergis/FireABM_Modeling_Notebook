@@ -104,7 +104,7 @@ def create_bboxes(gdf_nodes, buffer_pct=0.15, buff_adj=None):
     # find buffer in xy coordinates to use in map
     xbuff = (max(gdf_nodes['x']) - min(gdf_nodes['x'])) * buffer_pct
     ybuff = (max(gdf_nodes['y']) - min(gdf_nodes['y'])) * buffer_pct
-    bbox = [min(gdf_nodes['x']) + (xbuff*xposadj), min(gdf_nodes['y']) + (ybuff * yposadj),
+    bbox = [min(gdf_nodes['x']) + (xbuff * xposadj), min(gdf_nodes['y']) + (ybuff * yposadj),
         max(gdf_nodes['x']) - (xbuff * xnegadj), max(gdf_nodes['y']) - (ybuff * ynegadj)]
 
     # find buffer in lat/long to use in simulation
@@ -142,8 +142,8 @@ def inspect(g, nid, mid=None, radius=300, showMap=False, fullMap=True):  # Becky
         else:
             t = ox.graph_from_point(loc, distance=radius, distance_type='bbox', network_type='drive')
         if not mid:
-            nc = ['r' if node==nid else '#336699' for node in t.nodes()]
-            ns = [50 if node==nid else 8 for node in t.nodes()]
+            nc = ['r' if node == nid else '#336699' for node in t.nodes()]
+            ns = [50 if node == nid else 8 for node in t.nodes()]
             ox.plot_graph(t, node_size=ns, node_color=nc, node_zorder=2)
             if showMap:  # Becky add showMap logic
                 return ox.plot_graph_folium(t)
@@ -428,134 +428,134 @@ def adjustLength(g):
             e[3]['length'] = e[3]['geometry'].length
     return g
 
-def add_unit_speed(g): # Becky add for routing
+def add_unit_speed(g):  # Becky add for routing
     for e in g.edges(keys=True, data=True):
         if 'maxspeed' in e[3]:
             s = e[3]['maxspeed']
             if type(s) == list:
                 s = s[0]
             # sm = mph2ms(int(s[:2]))
-            e[3]['speed'] = mph2ms(int(s[:2])) ## -> Quickest
+            e[3]['speed'] = mph2ms(int(s[:2]))  # -> Quickest
             if e[3]['speed'] > 0:
-                e[3]['seg_time']=e[3]['length'] / e[3]['speed']
+                e[3]['seg_time'] = e[3]['length'] / e[3]['speed']
             else:
-                e[3]['seg_time']=e[3]['length'] / DEFAULT_ROAD_SPEED
+                e[3]['seg_time'] = e[3]['length'] / DEFAULT_ROAD_SPEED
                 e[3]['speed'] = DEFAULT_ROAD_SPEED
         else:
-            e[3]['seg_time']=e[3]['length'] / DEFAULT_ROAD_SPEED
+            e[3]['seg_time'] = e[3]['length'] / DEFAULT_ROAD_SPEED
             e[3]['speed'] = DEFAULT_ROAD_SPEED
 
-        e[3]['ett'] = e[3]['length'] / e[3]['speed'] ## -> Quickest
+        e[3]['ett'] = e[3]['length'] / e[3]['speed']  # -> Quickest
     return g
 
-def add_road_type_weights(g, rt_weights=[1, 1, 5, 10, 15, 20, 20]): # Becky add for routing
+def add_road_type_weights(g, rt_weights=[1, 1, 5, 10, 15, 20, 20]):  # Becky add for routing
     # https://wiki.openstreetmap.org/wiki/Key:highway
     for e in g.edges(keys=True, data=True):
         if 'highway' in e[3]:
             rt = e[3]['highway']
             if rt in ['motorway', 'motorway_link']:
-                e[3]['rt_weight']=rt_weights[0]
-                e[3]['rt_weighted_len']=e[3]['length']*rt_weights[0]
+                e[3]['rt_weight'] = rt_weights[0]
+                e[3]['rt_weighted_len'] = e[3]['length'] * rt_weights[0]
             elif rt in ['trunk', 'trunk_link']:
-                e[3]['rt_weight']=rt_weights[1]
-                e[3]['rt_weighted_len']=e[3]['length']*rt_weights[1]
+                e[3]['rt_weight'] = rt_weights[1]
+                e[3]['rt_weighted_len'] = e[3]['length'] * rt_weights[1]
             elif rt in ['primary', 'primary_link']:
-                e[3]['rt_weight']=rt_weights[2]
-                e[3]['rt_weighted_len']=e[3]['length']*rt_weights[2]
+                e[3]['rt_weight'] = rt_weights[2]
+                e[3]['rt_weighted_len'] = e[3]['length'] * rt_weights[2]
             elif rt in ['secondary', 'secondary_link']:
-                e[3]['rt_weight']=rt_weights[3]
-                e[3]['rt_weighted_len']=e[3]['length']*rt_weights[3]
+                e[3]['rt_weight'] = rt_weights[3]
+                e[3]['rt_weighted_len'] = e[3]['length'] * rt_weights[3]
             elif rt in ['tertiary', 'tertiary_link']:
-                e[3]['rt_weight']=rt_weights[4]
-                e[3]['rt_weighted_len']=e[3]['length']*rt_weights[4]
+                e[3]['rt_weight'] = rt_weights[4]
+                e[3]['rt_weighted_len'] = e[3]['length'] * rt_weights[4]
             elif rt == 'unclassified':
-                e[3]['rt_weight']=rt_weights[5]
-                e[3]['rt_weighted_len']=e[3]['length']*rt_weights[5]
+                e[3]['rt_weight'] = rt_weights[5]
+                e[3]['rt_weighted_len'] = e[3]['length'] * rt_weights[5]
             elif rt == 'residential':
-                e[3]['rt_weight']=rt_weights[6]
-                e[3]['rt_weighted_len']=e[3]['length']*rt_weights[6]
+                e[3]['rt_weight'] = rt_weights[6]
+                e[3]['rt_weighted_len'] = e[3]['length'] * rt_weights[6]
             else:
-                e[3]['rt_weight']=rt_weights[5]
-                e[3]['rt_weighted_len']=e[3]['length']*rt_weights[5]
+                e[3]['rt_weight'] = rt_weights[5]
+                e[3]['rt_weighted_len'] = e[3]['length'] * rt_weights[5]
         else:
-            e[3]['rt_weight']=rt_weights[5]
-            e[3]['rt_weighted_len']=e[3]['length']*rt_weights[5]
+            e[3]['rt_weight'] = rt_weights[5]
+            e[3]['rt_weighted_len'] = e[3]['length'] * rt_weights[5]
     return g
 
-def add_households(g, hh_shp, shp_name, hh_col_name, cut_off_len=10, num_col=10, bbox_poly=None): # Becky add for placing vehicles
-    
+def add_households(g, hh_shp, shp_name, hh_col_name, cut_off_len=10, num_col=10, bbox_poly=None):  # Becky add for placing vehicles
+
     gdf_edges = ox.graph_to_gdfs(g, nodes=False, edges=True)
     edges_with_hhs = gpd.sjoin(gdf_edges, hh_shp, how="inner", op='intersects')
-    
-    name_list = [shp_name[:cut_off_len-(len(str(i))+1)]+"_"+str(i) for i in range(1, num_col)]
+
+    name_list = [shp_name[:cut_off_len - (len(str(i)) + 1)] + "_" + str(i) for i in range(1, num_col)]
     name_list.append(shp_name[:cut_off_len])
-    
+
     for col_name in [d_name for d_name in name_list if d_name in edges_with_hhs.columns and d_name != hh_col_name]:
         edges_with_hhs = edges_with_hhs.drop([col_name], axis=1)
-        
+
     hh_dict = {}
     tract_dict = {}
-    
+
     for i in list(zip(edges_with_hhs['u'], edges_with_hhs['v'], edges_with_hhs['key'], edges_with_hhs[hh_col_name])):
         hh_dict[(i[0], i[1], i[2])] = i[3]
-        
+
     for i in list(zip(edges_with_hhs['u'], edges_with_hhs['v'], edges_with_hhs['key'], edges_with_hhs['NAME'])):
         tract_dict[(i[0], i[1], i[2])] = i[3]
-        
+
     nx.set_edge_attributes(g, hh_dict, 'Tot_Est_HH_uncpd')
     nx.set_edge_attributes(g, tract_dict, 'Tract_name')
-    
+
     return_list = [g]
-    
+
     if bbox_poly:
-        
+
         overlap = hh_shp['geometry'].intersection(bbox_poly)
         hh_shp['full_tract_area'] = hh_shp.geometry.area
         hh_shp_pts = hh_shp.copy()
-        
+
         overlap_poly = overlap[~overlap.is_empty].copy()
         ovlp_gdf = gpd.GeoDataFrame(overlap_poly, geometry=overlap_poly)
         ovlp_gdf["cp_area"] = ovlp_gdf.geometry.area
-        
+
         hh_shp_pts['geometry'] = ovlp_gdf['geometry'].centroid
         ovlp_gdf_join = gpd.sjoin(ovlp_gdf, hh_shp_pts, how="left", op='intersects')
-        ovlp_gdf_join['Est_Area_Cpd_Ratio'] = ovlp_gdf_join['cp_area']/ovlp_gdf_join['full_tract_area']
-        
+        ovlp_gdf_join['Est_Area_Cpd_Ratio'] = ovlp_gdf_join['cp_area'] / ovlp_gdf_join['full_tract_area']
+
         ovlp_pts = ovlp_gdf.copy()
         ovlp_pts['geometry'] = ovlp_pts['geometry'].centroid
-        
+
         cpd_hh_join = gpd.sjoin(hh_shp, ovlp_pts, how="left", op='intersects')
-        cpd_hh_join['Est_Area_Cpd_Ratio'] = cpd_hh_join['cp_area']/cpd_hh_join.geometry.area
-        
+        cpd_hh_join['Est_Area_Cpd_Ratio'] = cpd_hh_join['cp_area'] / cpd_hh_join.geometry.area
+
         cpd_hh_join_sel = cpd_hh_join[['NAME', 'Est_Area_Cpd_Ratio']]
         edges_with_hhs_cpd = edges_with_hhs.merge(cpd_hh_join_sel, on='NAME')
-        
-        edges_with_hhs_cpd['Tot_Est_HH_cpd'] = edges_with_hhs_cpd[hh_col_name]*edges_with_hhs_cpd['Est_Area_Cpd_Ratio']
+
+        edges_with_hhs_cpd['Tot_Est_HH_cpd'] = edges_with_hhs_cpd[hh_col_name] * edges_with_hhs_cpd['Est_Area_Cpd_Ratio']
         edges_with_hhs_cpd['HH_Cpd_pct'] = edges_with_hhs_cpd['Tot_Est_HH_cpd'] / edges_with_hhs_cpd['Tot_Est_HH_cpd'].sum()
-        extra_prc = edges_with_hhs_cpd.loc[0]['HH_Cpd_pct']+(1-edges_with_hhs_cpd['HH_Cpd_pct'].sum())
+        extra_prc = edges_with_hhs_cpd.loc[0]['HH_Cpd_pct'] + (1 - edges_with_hhs_cpd['HH_Cpd_pct'].sum())
         edges_with_hhs_cpd.loc[0, 'HH_Cpd_pct'] = extra_prc
-        #print(edges_with_hhs_cpd['HH_Cpd_pct'].sum())
-        
+        # print(edges_with_hhs_cpd['HH_Cpd_pct'].sum())
+
         cpt_dict = {}
         tot_hh_cpt_dict = {}
         tot_hh_cpt_pct_dict = {}
-        
+
         for i in list(zip(edges_with_hhs_cpd['u'], edges_with_hhs_cpd['v'], edges_with_hhs_cpd['key'], edges_with_hhs_cpd['Est_Area_Cpd_Ratio'])):
             cpt_dict[(i[0], i[1], i[2])] = i[3]
-            
+
         for i in list(zip(edges_with_hhs_cpd['u'], edges_with_hhs_cpd['v'], edges_with_hhs_cpd['key'], edges_with_hhs_cpd['Tot_Est_HH_cpd'])):
             tot_hh_cpt_dict[(i[0], i[1], i[2])] = i[3]
-            
+
         for i in list(zip(edges_with_hhs_cpd['u'], edges_with_hhs_cpd['v'], edges_with_hhs_cpd['key'], edges_with_hhs_cpd['HH_Cpd_pct'])):
             tot_hh_cpt_pct_dict[(i[0], i[1], i[2])] = i[3]
-        
+
         nx.set_edge_attributes(g, cpt_dict, 'Est_Area_Cpd_Ratio')
         nx.set_edge_attributes(g, tot_hh_cpt_dict, 'Tot_Est_HH_Cpd')
         nx.set_edge_attributes(g, tot_hh_cpt_pct_dict, 'Pct_HH_Cpd')
-        
+
         gdf_edges = ox.graph_to_gdfs(g, nodes=False, edges=True)
         return_list.append(ovlp_gdf_join)
-       
+
     return return_list
 
 def set_test_hh_ratio(g, rat_dict):
@@ -571,14 +571,14 @@ def poly_to_gdf(poly):
     poly_gdf = gpd.GeoDataFrame([1], geometry=[poly])
     return poly_gdf
 
-def adj_speed_value(g, populate=False, overwrite=False): # Becky Add for routing
+def adj_speed_value(g, populate=False, overwrite=False):  # Becky Add for routing
     for e in g.edges(keys=True, data=True):
         if 'maxspeed' in e[3]:
             s = e[3]['maxspeed']
             if type(s) == list:
                 s = s[0]
             sa = int(s[:2])
-            e[3]['adj_speed'] = sa  
+            e[3]['adj_speed'] = sa
         else:
             if populate:
                 if 'highway' in e[3]:
@@ -591,7 +591,7 @@ def adj_speed_value(g, populate=False, overwrite=False): # Becky Add for routing
     return g
 
 def add_fire_distance(g, fire_df, norm=False, inv=False):
-    #print('adding fire distance, norm', norm, 'inv', inv)
+    # print('adding fire distance, norm', norm, 'inv', inv)
     for e in g.edges(keys=True, data=True):
         if 'geometry' in e[3]:
             s = e[3]['geometry'].distance(fire_df.unary_union)
@@ -609,26 +609,26 @@ def add_fire_distance(g, fire_df, norm=False, inv=False):
 def normalize_edge_attribute(g, attr, att_min, att_max, new_name):
     for e in g.edges(keys=True, data=True):
         if attr in e[3]:
-            e[3][new_name] = (e[3][attr]-att_min)/(att_max-att_min)
+            e[3][new_name] = (e[3][attr] - att_min) / (att_max - att_min)
         else:
-            e[3][new_name] = None 
+            e[3][new_name] = None
     return g
 
 def invert_norm_edge_attribute(g, attr, new_name):
     for e in g.edges(keys=True, data=True):
         if attr in e[3]:
-            e[3][new_name] = max(min((1-e[3][attr]), 1), 0)
+            e[3][new_name] = max(min((1 - e[3][attr]), 1), 0)
         else:
-            e[3][new_name] = None 
+            e[3][new_name] = None
     return g
 
 def combine_attribute(g, attrs, weights, new_name):
-    #print('combining', str(attrs), 'at weights', str(weights), 'to', new_name)
+    # print('combining', str(attrs), 'at weights', str(weights), 'to', new_name)
     for e in g.edges(keys=True, data=True):
         if all(attr in e[3] for attr in attrs):
-                e[3][new_name] = sum([(weights[i]*e[3][a]) for i, a in enumerate(attrs)])
+            e[3][new_name] = sum([(weights[i] * e[3][a]) for i, a in enumerate(attrs)])
         else:
-            e[3][new_name] = None 
+            e[3][new_name] = None
     return g
 
 def cleanUp(g):
@@ -640,26 +640,26 @@ def project_lat_lon(lat, lon):
 # Becky added function
 def project_UTM(y, x, crs):
     return ox.project_geometry(Point(y, x), crs=crs, to_latlong=True)[0].coords[0]
-    
+
 # Becky added function
 def find_UTM_crs(lat, lon):
     return ox.project_geometry(Point(lon, lat))[1]
 
 def isNodeInBbox(node, bbox):
-    return bbox[0][0]<node['x']<bbox[1][0] and bbox[0][1]<node['y']<bbox[1][1]
+    return bbox[0][0] < node['x'] < bbox[1][0] and bbox[0][1] < node['y'] < bbox[1][1]
 
-def view_path(g, start_point, exit_point, strategy=[], showMap=False, norm=True): # Becky added, show path choosen by driving strategy
+def view_path(g, start_point, exit_point, strategy=[], showMap=False, norm=True):  # Becky added, show path choosen by driving strategy
     path_list = []
-    
+
     if strategy == []:
         sweight = 'length'
         path = nx.shortest_path(g, source=start_point, target=exit_point, weight=sweight)
         if showMap:
             ox.plot.plot_graph_route(g, path)
         path_list.append(['dist', path])
-    
+
     else:
-        
+
         colors = ox.get_colors(len(strategy))
         rc = [colors[strategy.index(x)] for x in strategy for y in x]
         for rs in strategy:
@@ -698,24 +698,24 @@ def view_path(g, start_point, exit_point, strategy=[], showMap=False, norm=True)
             if showMap:
                 ox.plot.plot_graph_route(g, path, route_color=rc)
             path_list.append([rs, path])
-        
+
     return path_list
 
 def strategy_opts():
-    ops = ['dist', 'dist+speed', 'dist+road_type_weight', 
+    ops = ['dist', 'dist+speed', 'dist+road_type_weight',
            'dist+from+fire', 'fire+dist', 'fire+rdty_weight']
     return ops
 
 def convt_strategy_opts_to_weights(ops):
     for idx, strat in enumerate(ops):
         if strat == 'dist':
-            #ops[idx] = 'length'
+            # ops[idx] = 'length'
             ops[idx] = 'length_n'
         elif strat == 'dist+speed':
-            #ops[idx] = 'seg_time'
+            # ops[idx] = 'seg_time'
             ops[idx] = 'seg_time_n'
         elif strat == 'dist+road_type_weight':
-            #ops[idx] = 'rt_weighted_len'
+            # ops[idx] = 'rt_weighted_len'
             ops[idx] = 'rt_wght_len_n'
         elif strat == 'dist+from+fire':
             ops[idx] = 'inv_fire_dist_n'
@@ -723,23 +723,23 @@ def convt_strategy_opts_to_weights(ops):
             ops[idx] = 'fire_leng_n'
         elif strat == 'fire+rdty_weight':
             ops[idx] = 'fire_rd_wght_n'
-        
+
     return ops
 
-def compare_paths(g, paths, strategies=None, showMap=False): # Becky added, show path choosen by driving strategy
+def compare_paths(g, paths, strategies=None, showMap=False):  # Becky added, show path choosen by driving strategy
     colors = ox.get_colors(len(paths))
-    
+
     rc = [colors[paths.index(x)] for x in paths for y in x]
     nc = [val for val in colors for _ in (0, 1)]
 
     # plot the routes
     if showMap:
         fig, ax = ox.plot_graph_routes(g, paths, route_color=rc, orig_dest_node_color=nc, node_size=0)
-    
+
     if strategies:
-        lengths = [nx.shortest_path_length(g, p, strategies[i]) for (i,p) in enumerate(paths)]
+        lengths = [nx.shortest_path_length(g, p, strategies[i]) for (i, p) in enumerate(paths)]
         return lengths
-    
+
 
 ############################################################################
 ############################################################################
