@@ -83,7 +83,7 @@ def main():
     parser.add_argument('-rfn', '--result_file_name', default='result_file', type=str, dest='rslt_file_name',
                         help='experiment number')
     # use for file naming
-    parser.add_argument('-vfn', '--video_file_name',  default='output_file', type=str, dest='vid_file_name',
+    parser.add_argument('-vfn', '--video_file_name', default='output_file', type=str, dest='vid_file_name',
                         help='notebook or run section number')
     parser.add_argument('-pargs', '--print_args', default=False, type=bool, dest='print_args',
                         help='if true, print arg values')
@@ -97,7 +97,7 @@ def main():
     if args.print_args:
         print('!! passed args: ...')
         print('\tnum_veh:', args.num_veh)  # type(args.num_veh))
-        print('\tseeds:', args.seed)  #type(args.seed))
+        print('\tseeds:', args.seed)  # type(args.seed))
         print('\texperiment_path:', args.experiment_path)  # type(args.experiment_path))
         print('\tout_folder:', args.out_folder)  # type(args.out_folder))
         print('\tmajor_strat:', args.major_strat)  # type(args.major_strat))
@@ -178,7 +178,7 @@ def main():
     print('\nbad_seeds', bad_seeds)
 
 
-   ########################################################################################################
+    ########################################################################################################
     # #### end simulation run
 
     end_full_run_time = datetime.now(time_zone)
