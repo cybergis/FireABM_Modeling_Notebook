@@ -202,11 +202,11 @@ def select_nearest_node(g, show_info=False):
 
     cords_button = LoadedButton(description='Get coordinates!')
     cords_button.on_click(print_coords)
-    display(cords_button)  # noqa: F821
+    display(cords_button)
 
     node_button = LoadedButton(description='Get node!')
     node_button.on_click(print_node_id)
-    display(node_button)  # noqa: F821
+    display(node_button)
 
 
 def view_node_attrib(g, attrib, show_null=False):
