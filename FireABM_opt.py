@@ -26,47 +26,47 @@ from datetime import datetime
 from heapq import heappush, heappop
 from itertools import count
 
-#plt.rcParams['animation.writer']='avconv'
-plt.rcParams['animation.writer']='ffmpeg'
+# plt.rcParams['animation.writer']='avconv'
+plt.rcParams['animation.writer'] = 'ffmpeg'
 
-DEFAULT_VEHICLE_LENGTH=3 #meters, couting from the head of the vehicle, no other vehicles after [length] meters
-DEFAULT_ROAD_LANES=1 # For viz puporses (and convenience), limiting road_lanes to 1. Different lanes could be modeled as different keys of the same i,j
-DEFAULT_ROAD_SPEED=15 # m/s, ~35 mph
+DEFAULT_VEHICLE_LENGTH = 3  # meters, couting from the head of the vehicle, no other vehicles after [length] meters
+DEFAULT_ROAD_LANES = 1  # For viz puporses (and convenience), limiting road_lanes to 1. Different lanes could be modeled as different keys of the same i,j
+DEFAULT_ROAD_SPEED = 15  # m/s, ~35 mph
 
-time_zone = pytz.timezone('America/Chicago') 
+time_zone = pytz.timezone('America/Chicago')
 seed_number = None
 
-def set_seeds(in_seed_number): # sets seed for reproducibility, both python and numpy random generators used
+def set_seeds(in_seed_number):  # sets seed for reproducibility, both python and numpy random generators used
     np.random.seed(in_seed_number)
     random.seed(in_seed_number)
-    global seed_number 
+    global seed_number
     seed_number = in_seed_number
     return seed_number
-    
+
 def check_seed():
-     print (seed_number)
-        
+    print(seed_number)
+
 def gen_seeds(tot_size, sel_size, seed_number):
     seeds = []
     np.random.seed(seed_number)
     while len(seeds) < sel_size:
         r = np.random.randint(tot_size)
-        if r not in seeds: 
+        if r not in seeds:
             seeds.append(r)
     return seeds
 
 def time_stamp(start_time=None):
     print(datetime.now(time_zone).strftime("%H:%M:%S"))
-    if start_time == None:
+    if start_time is None:
         return time.time()
     else:
         return abm_timer(start_time, time.time())
 
 def abm_timer(start, end):
-    hours, rem = divmod(end-start, 3600)
+    hours, rem = divmod(end - start, 3600)
     minutes, seconds = divmod(rem, 60)
-    print("{:0>2}:{:0>2}:{:05.2f}".format(int(hours),int(minutes),seconds))   
-    
+    print("{:0>2}:{:0>2}:{:05.2f}".format(int(hours), int(minutes), seconds))
+
 def setup_sim(g, seed=51, no_seed=False):
     fig, ax = ox.plot_graph(g, node_size=0, fig_height=15, show=False, margin=0)
     fig.tight_layout()
@@ -80,12 +80,12 @@ def str_replace_mult(string, rep_list):
     return string
 
 def mph2ms(mph):
-    return mph*0.44704
+    return mph * 0.44704
 
-def dist2(a,b):
-    dx=a[0]-b[0]
-    dy=a[1]-b[1]
-    return dx*dx+dy*dy
+def dist2(a, b):
+    dx = a[0] - b[0]
+    dy = a[1] - b[1]
+    return dx * dx + dy * dy
 
 def get_node_edge_gdf(g):
     nodes = ox.graph_to_gdfs(g, nodes=True, edges=False)
@@ -104,21 +104,21 @@ def create_bboxes(gdf_nodes, buffer_pct=0.15, buff_adj=None):
     # find buffer in xy coordinates to use in map
     xbuff = (max(gdf_nodes['x']) - min(gdf_nodes['x'])) * buffer_pct
     ybuff = (max(gdf_nodes['y']) - min(gdf_nodes['y'])) * buffer_pct
-    bbox = [min(gdf_nodes['x']) + (xbuff*xposadj), min(gdf_nodes['y']) + (ybuff*yposadj),
-        max(gdf_nodes['x']) - (xbuff*xnegadj), max(gdf_nodes['y']) - (ybuff*ynegadj)]
+    bbox = [min(gdf_nodes['x']) + (xbuff*xposadj), min(gdf_nodes['y']) + (ybuff * yposadj),
+        max(gdf_nodes['x']) - (xbuff * xnegadj), max(gdf_nodes['y']) - (ybuff * ynegadj)]
 
     # find buffer in lat/long to use in simulation
-    latbuff = (max(gdf_nodes['lat']) - min(gdf_nodes['lat'])) * buffer_pct 
+    latbuff = (max(gdf_nodes['lat']) - min(gdf_nodes['lat'])) * buffer_pct
     lonbuff = (max(gdf_nodes['lon']) - min(gdf_nodes['lon'])) * buffer_pct
-    lbbox = [min(gdf_nodes['lon']) + (lonbuff*xposadj), min(gdf_nodes['lat']) + (latbuff*yposadj),
-        max(gdf_nodes['lon']) - (lonbuff*xnegadj), max(gdf_nodes['lat']) - (latbuff*ynegadj)]
+    lbbox = [min(gdf_nodes['lon']) + (lonbuff * xposadj), min(gdf_nodes['lat']) + (latbuff * yposadj),
+        max(gdf_nodes['lon']) - (lonbuff * xnegadj), max(gdf_nodes['lat']) - (latbuff * ynegadj)]
 
     # fill out coordinates into a rectangle and extract xy for plotting
     poly = shapely.geometry.box(*bbox)
-    x,y = poly.exterior.xy
+    x, y = poly.exterior.xy
     return (bbox, lbbox, poly, x, y)
 
-def check_graphs(gdf_edges, x=None, y=None, shpfile=None, is_fire=True, zorder=4, figsize=(8,8)):
+def check_graphs(gdf_edges, x=None, y=None, shpfile=None, is_fire=True, zorder=4, figsize=(8, 8)):
     fig, ax = plt.subplots(figsize=figsize)
     gdf_edges.plot(ax=ax)
     if x and y:
@@ -129,38 +129,38 @@ def check_graphs(gdf_edges, x=None, y=None, shpfile=None, is_fire=True, zorder=4
         else:
             shpfile.plot(ax=ax, cmap='Greens', zorder=zorder)
     return (fig, ax)
-    
-def inspect(g, nid, mid=None, radius=300, showMap=False, fullMap=True): # Becky add g, showMap
-    #if 'x' in g.nodes[nid]: # Becky added if statement, fix graph
-    #    loc=(g.nodes[nid]['y'],g.nodes[nid]['x']) 
-    #else:
-        #loc=(g.nodes[nid]['lat'],g.nodes[nid]['lon']) # Becky change y, x to lat, lon
+
+def inspect(g, nid, mid=None, radius=300, showMap=False, fullMap=True):  # Becky add g, showMap
+    # if 'x' in g.nodes[nid]: # Becky added if statement, fix graph
+    #     loc=(g.nodes[nid]['y'],g.nodes[nid]['x'])
+    # else:
+    #     loc=(g.nodes[nid]['lat'],g.nodes[nid]['lon'])  # Becky change y, x to lat, lon
     if nid is not None:
-        loc=(g.nodes[nid]['lat'],g.nodes[nid]['lon']) # Becky change y, x to lat, lon
+        loc = (g.nodes[nid]['lat'], g.nodes[nid]['lon'])  # Becky change y, x to lat, lon
         if fullMap:
-            t=g
+            t = g
         else:
-            t=ox.graph_from_point(loc, distance=radius, distance_type='bbox', network_type='drive')
+            t = ox.graph_from_point(loc, distance=radius, distance_type='bbox', network_type='drive')
         if not mid:
             nc = ['r' if node==nid else '#336699' for node in t.nodes()]
             ns = [50 if node==nid else 8 for node in t.nodes()]
-            ox.plot_graph(t,node_size=ns,node_color=nc,node_zorder=2)
+            ox.plot_graph(t, node_size=ns, node_color=nc, node_zorder=2)
             if showMap:  # Becky add showMap logic
                 return ox.plot_graph_folium(t)
         else:
-            ec = ['r' if u==nid and v==mid else '#336699' for u, v, key, data in t.edges(keys=True, data=True)]
-            es = [3 if u==nid and v==mid else 1 for u, v, key, data in t.edges(keys=True, data=True)]
+            ec = ['r' if u == nid and v == mid else '#336699' for u, v, key, data in t.edges(keys=True, data=True)]
+            es = [3 if u == nid and v == mid else 1 for u, v, key, data in t.edges(keys=True, data=True)]
             ox.plot_graph(t, node_size=30, edge_color=ec, edge_linewidth=es, edge_alpha=0.5)
-            if showMap: # Becky add showMap logic
+            if showMap:  # Becky add showMap logic
                 return ox.plot_graph_folium(t)
-    
-def highlight(g,edgelist,showMap=False):
-    ec = ['r' if (u,v,key) in edgelist else '#336699' for u, v, key in g.edges(keys=True)]
-    es = [3 if (u,v,key) in edgelist else 1 for u, v,key in g.edges(keys=True)]
+
+def highlight(g, edgelist, showMap=False):
+    ec = ['r' if (u, v, key) in edgelist else '#336699' for u, v, key in g.edges(keys=True)]
+    es = [3 if (u, v, key) in edgelist else 1 for u, v, key in g.edges(keys=True)]
     ox.plot_graph(g, node_size=30, edge_color=ec, edge_linewidth=es, edge_alpha=0.5)
     if showMap:
         return ox.plot_graph_folium(g)
-    
+
 class LoadedButton(widgets.Button):
     """A button that can holds a value as a attribute."""
 
@@ -168,65 +168,65 @@ class LoadedButton(widgets.Button):
         super(LoadedButton, self).__init__(*args, **kwargs)
         # Create the value attribute.
         self.add_traits(value=traitlets.Any(value))
-             
+
 def select_nearest_node(g, show_info=False):
     global fig, ax
     fig, ax = ox.plot_graph(g, node_size=30, edge_alpha=0.5)
-    
+
     global coords
     coords = [None, None]
     global near_node_id
     near_node_id = None
-  
+
     def print_coords(button_inst):
         if show_info:
-            print (coords)
-    
+            print(coords)
+
     def print_node_id(button_inst):
         if show_info:
-            print (near_node_id)
-        
+            print(near_node_id)
+
     def onclick(event):
         global ix, iy
         ix, iy = event.xdata, event.ydata
         global coords
         coords = (ix, iy)
         revcords = (iy, ix)
-        
+
         global near_node_id
         near_node_id = ox.geo_utils.get_nearest_node(g, revcords, method='euclidean')
         print(near_node_id)
-        
+
 
     cid = fig.canvas.mpl_connect('button_press_event', onclick)
-    
+
     cords_button = LoadedButton(description='Get coordinates!')
     cords_button.on_click(print_coords)
-    display(cords_button)
-    
+    display(cords_button)  # noqa: F821
+
     node_button = LoadedButton(description='Get node!')
     node_button.on_click(print_node_id)
-    display(node_button)
-    
-       
+    display(node_button)  # noqa: F821
+
+
 def view_node_attrib(g, attrib, show_null=False):
     if attrib == 'culdesacs':
-        culdesacs = [key for key, value in g.graph['streets_per_node'].items() if value==1]
+        culdesacs = [key for key, value in g.graph['streets_per_node'].items() if value == 1]
         nc = ['r' if node in culdesacs else 'none' for node in g.nodes()]
     ox.plot_graph(g, node_color=nc)
-        
+
 def view_edge_attrib(g, attrib, fig_height=8, show_null=False, show_edge_values=False, edge_value_rm=None, show_val=False, val=None, num_bins=5, set_range=None, breaks=None, set_colors=None, node_size=5, cmap='viridis'):
     gdf_edges = ox.graph_to_gdfs(g, nodes=False, edges=True)
     if attrib in gdf_edges:
-        print('Attribute: '+attrib+', Type: '+str(gdf_edges[attrib].dtype))
+        print('Attribute: ' + attrib + ', Type: ' + str(gdf_edges[attrib].dtype))
         elw = [1 for u, v, key, data in g.edges(keys=True, data=True)]
-    
-        legend_items = {'colors':[], 'names':[]}
+
+        legend_items = {'colors': [], 'names': []}
         if show_null:
             ec = ['red' if attrib not in data else 'grey' for u, v, key, data in g.edges(keys=True, data=True)]
             legend_items['colors'] = ['red', 'grey']
             legend_items['names'] = ['Null attribute', 'Attribute exists']
-            
+
         elif set_range:
             if set_colors:
                 colors = set_colors
@@ -241,18 +241,18 @@ def view_edge_attrib(g, attrib, fig_height=8, show_null=False, show_edge_values=
                         ec.append(colors[rindx])
                         included = True
                         elw.append(3)
-                if included == False:
+                if included is False:
                     ec.append('grey')
                     elw.append(1)
-              
+
             legend_items['colors'] = colors
-            legend_items['names'] = [str(rng[0])+'-'+str(rng[1]) for rng in set_range]
-            
+            legend_items['names'] = [str(rng[0]) + '-' + str(rng[1]) for rng in set_range]
+
         elif show_val:
             if isinstance(val, str):
                 ec = ['red' if data[attrib] == val else 'grey' for u, v, key, data in g.edges(keys=True, data=True)]
                 legend_items['colors'] = ['red', 'grey']
-                legend_items['names'] = [val, 'not '+str(val)]
+                legend_items['names'] = [val, 'not ' + str(val)]
             else:
                 cats = list(range(len(val)))
                 cat_names = val
@@ -262,17 +262,17 @@ def view_edge_attrib(g, attrib, fig_height=8, show_null=False, show_edge_values=
                 legend_items['names'] = list(cat_names)
                 if len(colors) > len(cat_names):
                     legend_items['names'].append('Not in list')
-        
+
         else:
             if gdf_edges[attrib].dtype in ['int64', 'float64', 'float', 'int'] and attrib is not 'key':
                 print('min', round(gdf_edges[attrib].min(), 2), 'max', round(gdf_edges[attrib].max(), 2))
-                ec, colors, bins = get_edge_colors_by_attr(g, attr=attrib, num_bins=num_bins,  cmap=cmap, bin_cuts=breaks)
-                #print('c and b', colors, bins)
+                ec, colors, bins = get_edge_colors_by_attr(g, attr=attrib, num_bins=num_bins, cmap=cmap, bin_cuts=breaks)
+                # print('c and b', colors, bins)
                 legend_items['colors'] = colors
                 for indx in range(len(colors)):
-                    leg_item = str(round(bins[indx], 2)) + " - " + str(round(bins[indx+1], 2))
+                    leg_item = str(round(bins[indx], 2)) + " - " + str(round(bins[indx + 1], 2))
                     legend_items['names'].append(leg_item)
-                
+
             elif gdf_edges[attrib].dtype == 'O' or attrib is 'key':
                 edge_series = copy.deepcopy(gdf_edges[attrib])
                 for index, edgs in enumerate(edge_series):
@@ -280,81 +280,81 @@ def view_edge_attrib(g, attrib, fig_height=8, show_null=False, show_edge_values=
                         edge_series[index] = edgs[0]
                 cats = edge_series.astype("category").cat.codes
                 cat_names = edge_series.astype("category").cat.categories
-                colors = ox.get_colors(len(edge_series.unique()),  cmap=cmap)
+                colors = ox.get_colors(len(edge_series.unique()), cmap=cmap)
                 ec = [colors[int(cat)] if pd.notnull(cat) else na_color for cat in cats]
                 legend_items['colors'] = colors
                 legend_items['names'] = list(cat_names)
                 if len(colors) > len(cat_names):
                     legend_items['names'].append('Null')
-                
+
             else:
                 try:
                     cats = gdf_edges[attrib].astype("category").cat.codes
                     cat_names = gdf_edges[attrib].astype("category").cat.categories
-                    colors = ox.get_colors(len(gdf_edges[attrib].unique()),  cmap=cmap)
+                    colors = ox.get_colors(len(gdf_edges[attrib].unique()), cmap=cmap)
                     ec = [colors[int(cat)] if pd.notnull(cat) else na_color for cat in cats]
                     legend_items['colors'] = colors
                     legend_items['names'] = list(cat_names)
                     if len(colors) > len(cat_names):
                         legend_items['names'].append('Null')
-                    
+
                 except:
                     ec = 'blue'
                     legend_items['colors'] = ['blue']
                     legend_items['names'] = ['Unable to parse variable']
-        
-    
+
+
         if show_edge_values:
             fig_height = 20
-        
+
         fig, ax = ox.plot_graph(g, fig_height=fig_height, node_size=node_size, edge_color=ec, edge_alpha=0.5, edge_linewidth=elw, show=False, close=False)
-    
+
         if show_edge_values:
             for index, row in gdf_edges.iterrows():
                 if attrib in row:
-                    edge_val_txt = str(row[attrib]) 
+                    edge_val_txt = str(row[attrib])
                     if edge_val_txt != 'nan':
                         if edge_value_rm:
                             for repl in edge_value_rm:
                                 edge_val_txt = edge_val_txt.replace(repl, '')
                         plt.text(row.geometry.centroid.x, row.geometry.centroid.y, edge_val_txt, zorder=4)
-     
+
         box = ax.get_position()
         ax.set_position([box.x0, box.y0, box.width * 0.8, box.height * 0.8])
         proxies = [make_proxy(item, linewidth=5) for item in legend_items['colors']]
         ax.legend(proxies, legend_items['names'], loc='center left', bbox_to_anchor=(1, 0.5))
-        #plt.show()
+        # plt.show()
         return (fig, ax)
-        
+
     else:
         print('attribute not found in edges')
-        
+
 # adapted from https://stackoverflow.com/questions/19877666/add-legends-to-linecollection-plot/19881647#19881647
 def make_proxy(color, **kwargs):
     return mp_lines.Line2D([0, 1], [0, 1], color=color, **kwargs)
 
-def get_edge_colors_by_attr(g, attr, num_bins=5, cmap='viridis', start=0, stop=1, na_color='none', bin_cuts=None): #overloaded osnmx function (support both continuous and non continuous vars)
+def get_edge_colors_by_attr(g, attr, num_bins=5, cmap='viridis', start=0, stop=1, na_color='none', bin_cuts=None):  # overloaded osnmx function (support both continuous and non continuous vars)
     if num_bins is None:
-        num_bins=len(g.edges())
+        num_bins = len(g.edges())
     if bin_cuts:
-        num_bins = len(bin_cuts)+1
-        
+        num_bins = len(bin_cuts) + 1
+
     bin_labels = range(num_bins)
-    
+
     attr_values = pd.Series([data[attr] for u, v, key, data in g.edges(keys=True, data=True)])
-    
+
     try:
         if not bin_cuts:
             cats, bins = pd.qcut(x=attr_values, q=num_bins, labels=bin_labels, retbins=True)
         else:
             print('bin_cuts!!', bin_cuts)
             cats, bins = pd.cut(x=attr_values, bins=bin_cuts, labels=bin_labels, retbins=True)
-    except: #added to support non continuous vars
+    except:  # added to support non continuous vars
         cats, bins = pd.cut(x=attr_values, bins=num_bins, labels=bin_labels, retbins=True)
-        
+
     colors = ox.get_colors(num_bins, cmap, start, stop)
     edge_colors = [colors[int(cat)] if pd.notnull(cat) else na_color for cat in cats]
-    
+
     return edge_colors, colors, bins
 
 def load_shpfile(g, path_list):
@@ -363,29 +363,29 @@ def load_shpfile(g, path_list):
     prj_file = in_file.to_crs(ox_crs)
     return prj_file
 
-def show_fire(g, fire_perim, show_graph=True, sim_time_num=None): #Becky added
+def show_fire(g, fire_perim, show_graph=True, sim_time_num=None):  # Becky added
     if sim_time_num:
-        fire_perim = fire_perim[fire_perim["SimTime"]==sim_time_num]
-    if show_graph == True:
+        fire_perim = fire_perim[fire_perim["SimTime"] == sim_time_num]
+    if show_graph is True:
         fig, ax = ox.plot_graph(g, node_size=30, edge_alpha=0.5, show=False, axis_off=False, close=False)
         fire_perim.plot(ax=ax, cmap='YlOrRd', alpha=0.1, zorder=4)
         fire_perim.boundary.plot(ax=ax, color='grey', alpha=0.75, zorder=4)
     else:
-        fire_perim.plot(cmap='YlOrRd', alpha=0.2, edgecolor='grey')        
+        fire_perim.plot(cmap='YlOrRd', alpha=0.2, edgecolor='grey')
     plt.show()
-    
-def show_shpfile(g, shpfile, show_graph=True, is_fire=True, sim_time_num=None): #Becky added
+
+def show_shpfile(g, shpfile, show_graph=True, is_fire=True, sim_time_num=None):  # Becky added
     if is_fire:
         if sim_time_num:
-            shpfile = shpfile[shpfile["SimTime"]==sim_time_num]
-    if show_graph == True:
+            shpfile = shpfile[shpfile["SimTime"] == sim_time_num]
+    if show_graph is True:
         fig, ax = ox.plot_graph(g, node_size=30, edge_alpha=0.5, show=False, axis_off=False, close=False)
         shpfile.plot(ax=ax, cmap='YlOrRd', alpha=0.1, zorder=4)
         shpfile.boundary.plot(ax=ax, color='grey', alpha=0.75, zorder=4)
     else:
-        shpfile.plot(cmap='YlOrRd', alpha=0.2, edgecolor='grey')        
+        shpfile.plot(cmap='YlOrRd', alpha=0.2, edgecolor='grey')
     plt.show()
-    
+
 def convert_fire_time(fire_perim, spread_num=None, sim_time_num=None, length=False):
     fire_list = sorted(list(set(fire_perim["SimTime"])))
     if spread_num:
@@ -402,30 +402,30 @@ def convert_fire_time(fire_perim, spread_num=None, sim_time_num=None, length=Fal
         return len(fire_list)
     else:
         return fire_list
-    
-def setup_graph(g): # Becky added
+
+def setup_graph(g):  # Becky added
     fig, ax = ox.plot_graph(g, node_size=0, fig_height=15, show=False, margin=0)
     fig.tight_layout()
     return fig, ax
-        
+
 def resolve_deadend(g):
-    deadEnds=[e for e in g.edges(keys=True,data=True) if len(g.adj[e[1]])==0] # Becky update fix
+    deadEnds = [e for e in g.edges(keys=True, data=True) if len(g.adj[e[1]]) == 0]  # Becky update fix
     for d in deadEnds:
-        g.add_edge(d[1],d[0],key=0)
+        g.add_edge(d[1], d[0], key=0)
     return g
-    
+
 def fillPhantom(g):
     for e in g.edges(keys=True, data=True):
         if 'geometry' not in e[3]:
-            u=e[0]
-            v=e[1]
-            e[3]['geometry']=LineString([Point(g.nodes[u]['x'],g.nodes[u]['y']), Point(g.nodes[v]['x'],g.nodes[v]['y'])])
+            u = e[0]
+            v = e[1]
+            e[3]['geometry'] = LineString([Point(g.nodes[u]['x'], g.nodes[u]['y']), Point(g.nodes[v]['x'], g.nodes[v]['y'])])
     return g
 
 def adjustLength(g):
     for e in g.edges(keys=True, data=True):
         if 'geometry' in e[3]:
-            e[3]['length']=e[3]['geometry'].length
+            e[3]['length'] = e[3]['geometry'].length
     return g
 
 def add_unit_speed(g): # Becky add for routing
