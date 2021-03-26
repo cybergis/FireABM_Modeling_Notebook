@@ -27,4 +27,5 @@ jobs:
         run: |
           pip install pytest
           pip install pytest-cov
-          pytest test_fireabm_opt.py --doctest-modules --junitxml=test-results.xml --cov=com --cov-report=html
+          pytest --cov-report term --cov=. test_fireabm_opt.py > coverage_report.txt
+          coverage report
