@@ -1,4 +1,5 @@
 [![PythonCodeQuality](https://github.com/cybergis/FireABM_Modeling_Notebook/workflows/Python%20Code%20Quality/badge.svg)](https://github.com/cybergis/FireABM_Modeling_Notebook/actions)
+[![PythonCodeTest](https://github.com/cybergis/FireABM_Modeling_Notebook/workflows/Python%20Code%20Test/badge.svg)](https://github.com/cybergis/FireABM_Modeling_Notebook/actions)
 ![GitHub](https://img.shields.io/github/license/cybergis/FireABM_Modeling_Notebook?style=plastic)
 ## Evaluating Implications of Problematic Routing Assumptions in Spatially Explicit Agent-Based Models of Wildfire Evacuation
 ### Code Base Documentation
