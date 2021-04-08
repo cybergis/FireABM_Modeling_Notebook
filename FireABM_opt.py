@@ -196,11 +196,11 @@ def select_nearest_node(g, show_info=False):
         global near_node_id
         near_node_id = ox.geo_utils.get_nearest_node(g, revcords, method='euclidean')
         print(near_node_id)
-   
+
     # PEP8 error F841 for cid ignored because reference needs to be
     # retained for event handler or else can be garbage collected
     # see https://matplotlib.org/stable/users/event_handling.html
-    cid = fig.canvas.mpl_connect('button_press_event', onclick) # noqa: F841 # ignore error code
+    cid = fig.canvas.mpl_connect('button_press_event', onclick)  # noqa: F841 # ignore error code
 
     cords_button = LoadedButton(description='Get coordinates!')
     cords_button.on_click(print_coords)
@@ -1400,10 +1400,10 @@ class NetABM():
         # print('start_main_sim body')
         if self.fire_perim is not None:
             update_interval = self.fire_des_ts_sec
-        save = True
+        # save = True
         self.isFinished = False
         if save_args is None or len(save_args) < 3:
-            save = False
+            # save = False
             print("data from this run won't be saved!")
             for i in range(steps):
                 self.move()
