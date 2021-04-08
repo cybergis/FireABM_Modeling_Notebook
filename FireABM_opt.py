@@ -196,9 +196,10 @@ def select_nearest_node(g, show_info=False):
         global near_node_id
         near_node_id = ox.geo_utils.get_nearest_node(g, revcords, method='euclidean')
         print(near_node_id)
-
-
-    cid = fig.canvas.mpl_connect('button_press_event', onclick)
+   
+    # PEP8 error for the next line ignored because reference needs to be
+    # retained for event handler else garbage collected
+    cid = fig.canvas.mpl_connect('button_press_event', onclick) # noqa: E731 # ignore PEP8 unused ref error
 
     cords_button = LoadedButton(description='Get coordinates!')
     cords_button.on_click(print_coords)
