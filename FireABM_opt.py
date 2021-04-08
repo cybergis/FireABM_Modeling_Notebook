@@ -266,7 +266,10 @@ def view_edge_attrib(g, attrib, fig_height=8, show_null=False, show_edge_values=
                     legend_items['names'].append('Not in list')
 
         else:
-            if gdf_edges[attrib].dtype in ['int64', 'float64', 'float', 'int'] and attrib is not 'key':
+            if ((gdf_edges[attrib].dtype == 'int64' 
+                or gdf_edges[attrib].dtype == 'float64'
+                or gdf_edges[attrib].dtype == 'float'
+                or gdf_edges[attrib].dtype == 'int') and attrib is not 'key'): 
                 print('min', round(gdf_edges[attrib].min(), 2), 'max', round(gdf_edges[attrib].max(), 2))
                 ec, colors, bins = get_edge_colors_by_attr(g, attr=attrib, num_bins=num_bins, cmap=cmap, bin_cuts=breaks)
                 # print('c and b', colors, bins)
@@ -1009,7 +1012,7 @@ class Vehicle:
             if road.add_vehicle(self):
                 road.check_in(self.vid, self.pos, 0)  # -> quickest path
                 self.road = road
-                if not init: # not implemented
+                if not init:  # not implemented
                     pass
                 #    self.trajectory.append((self.road.idx, frame_number))
                 else:
