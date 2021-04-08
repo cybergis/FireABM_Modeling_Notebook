@@ -160,7 +160,7 @@ def main():
                 gdf_nodes, gdf_edges = get_node_edge_gdf(road_graph)
                 (bbox, lbbox, poly, x, y) = create_bboxes(gdf_nodes, 0.1, buff_adj=args.bbox_buffer)
                 sr_fire = load_shpfile(road_graph, ("fire_input", args.fire_shapefile))
-                init_fire = sr_fire[sr_fire['SimTime'] == args.start_fire_time]
+                # init_fire = sr_fire[sr_fire['SimTime'] == args.start_fire_time]
 
                 fig, ax = setup_sim(road_graph, seed)
                 simulation = NetABM(road_graph, args.num_veh, bbox=lbbox, fire_perim=sr_fire, fire_ignit_time=args.start_fire_time,
