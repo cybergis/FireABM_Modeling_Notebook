@@ -10,7 +10,7 @@ import matplotlib.animation as animation
 import matplotlib.patches as patches
 import matplotlib.collections as collections
 import matplotlib.lines as mp_lines
-from IPython.display import HTML
+from IPython.display import HTML, display
 import networkx as nx
 from networkx.utils import generate_unique_node
 import random
@@ -217,7 +217,7 @@ def view_node_attrib(g, attrib, show_null=False):
         nc = ['r' if node in culdesacs else 'none' for node in g.nodes()]
     ox.plot_graph(g, node_color=nc)
 
-def view_edge_attrib(g, attrib, fig_height=8, show_null=False, show_edge_values=False, edge_value_rm=None, show_val=False, val=None, num_bins=5, set_range=None, breaks=None, set_colors=None, node_size=5, cmap='viridis'):
+def view_edge_attrib(g, attrib, fig_height=8, show_null=False, show_edge_values=False, edge_value_rm=None, show_val=False, val=None, num_bins=5, set_range=None, breaks=None, set_colors=None, node_size=5, cmap='viridis', na_color='none'):
     gdf_edges = ox.graph_to_gdfs(g, nodes=False, edges=True)
     if attrib in gdf_edges:
         print('Attribute: ' + attrib + ', Type: ' + str(gdf_edges[attrib].dtype))
@@ -1009,8 +1009,8 @@ class Vehicle:
             if road.add_vehicle(self):
                 road.check_in(self.vid, self.pos, 0)  # -> quickest path
                 self.road = road
-                if not init:
-                    self.trajectory.append((self.road.idx, frame_number))
+                # if not init:
+                #    self.trajectory.append((self.road.idx, frame_number))
                 else:
                     self.trajectory.append((self.road.idx, 0))
                 if self.pos > self.road.length:
@@ -1405,10 +1405,10 @@ class NetABM():
         if save_args is None or len(save_args) < 3:
             # save = False
             print("data from this run won't be saved!")
-            for i in range(steps):
-                self.move()
-                if i % update_interval == 0:
-                    self.mutate_block(mutate_rate)
+            # for i in range(steps):
+            #    self.move()
+            #    if i % update_interval == 0:
+            #       self.mutate_block(mutate_rate)
         else:
             if len(save_args) == 3:
                 fig, ax, filename = save_args
