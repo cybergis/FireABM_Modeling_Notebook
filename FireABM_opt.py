@@ -197,10 +197,10 @@ def select_nearest_node(g, show_info=False):
         near_node_id = ox.geo_utils.get_nearest_node(g, revcords, method='euclidean')
         print(near_node_id)
    
-    # PEP8 error for the next line ignored because reference needs to be
-    # retained for event handler else garbage collected
+    # PEP8 error F841 for cid ignored because reference needs to be
+    # retained for event handler or else can be garbage collected
     # see https://matplotlib.org/stable/users/event_handling.html
-    cid = fig.canvas.mpl_connect('button_press_event', onclick) # noqa: E731
+    cid = fig.canvas.mpl_connect('button_press_event', onclick) # noqa: F841 # ignore error code
 
     cords_button = LoadedButton(description='Get coordinates!')
     cords_button.on_click(print_coords)
