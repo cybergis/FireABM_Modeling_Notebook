@@ -1009,7 +1009,8 @@ class Vehicle:
             if road.add_vehicle(self):
                 road.check_in(self.vid, self.pos, 0)  # -> quickest path
                 self.road = road
-                # if not init:
+                if not init: # not implemented
+                    pass
                 #    self.trajectory.append((self.road.idx, frame_number))
                 else:
                     self.trajectory.append((self.road.idx, 0))
