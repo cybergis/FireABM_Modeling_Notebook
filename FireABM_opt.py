@@ -199,7 +199,8 @@ def select_nearest_node(g, show_info=False):
    
     # PEP8 error for the next line ignored because reference needs to be
     # retained for event handler else garbage collected
-    cid = fig.canvas.mpl_connect('button_press_event', onclick) # noqa: E731 # ignore PEP8 unused ref error
+    # see https://matplotlib.org/stable/users/event_handling.html
+    cid = fig.canvas.mpl_connect('button_press_event', onclick) # noqa: E731
 
     cords_button = LoadedButton(description='Get coordinates!')
     cords_button.on_click(print_coords)
