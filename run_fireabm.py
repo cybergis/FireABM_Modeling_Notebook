@@ -163,11 +163,11 @@ def main():
 
                 fig, ax = setup_sim(road_graph, seed)
                 simulation = NetABM(road_graph, args.num_veh, bbox=lbbox, fire_perim=sr_fire, fire_ignit_time=args.start_fire_time,
-                fire_des_ts_sec=100, reset_interval=True, placement_prob='Pct_HH_Cpd',
-                init_strategies={major_strat: strat_perc})
+                                    fire_des_ts_sec=100, reset_interval=True, placement_prob='Pct_HH_Cpd',
+                                    init_strategies={major_strat: strat_perc})
 
                 simulation.run(save_args=(fig, ax, args.rslt_file_name, args.vid_file_name, args.out_folder,
-                             i, j, seed, treat_desc, args.exp_desc, args.exp_no, args.nb_no, args.road_graph_pkl), mutate_rate=0.005, update_interval=100)
+                               i, j, seed, treat_desc, args.exp_desc, args.exp_no, args.nb_no, args.road_graph_pkl), mutate_rate=0.005, update_interval=100)
                 run_count += 1
                 print("\nsuccess! no:", run_count, 'run_time:', datetime.now(time_zone) - run_start_time, 'timestamp:', datetime.now(time_zone).strftime("%H:%M:%S"))
 
