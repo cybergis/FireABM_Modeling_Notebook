@@ -172,7 +172,7 @@ def main():
                 run_count += 1
                 print("\nsuccess! no:", run_count, 'run_time:', datetime.now(time_zone) - run_start_time, 'timestamp:', datetime.now(time_zone).strftime("%H:%M:%S"))
 
-            except:
+            except:  # noqa: E722 # sometimes crashes
                 print("Issue with this: ", treat_desc, i, j, seed, strat_perc)
                 bad_seeds.append(seed)
     print('\nbad_seeds', bad_seeds)
