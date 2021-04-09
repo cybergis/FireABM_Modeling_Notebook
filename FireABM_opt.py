@@ -117,13 +117,13 @@ def create_bboxes(gdf_nodes, buffer_pct=0.15, buff_adj=None):
     xbuff = (max(gdf_nodes['x']) - min(gdf_nodes['x'])) * buffer_pct
     ybuff = (max(gdf_nodes['y']) - min(gdf_nodes['y'])) * buffer_pct
     bbox = [min(gdf_nodes['x']) + (xbuff * xposadj), min(gdf_nodes['y']) + (ybuff * yposadj),
-        max(gdf_nodes['x']) - (xbuff * xnegadj), max(gdf_nodes['y']) - (ybuff * ynegadj)]
+            max(gdf_nodes['x']) - (xbuff * xnegadj), max(gdf_nodes['y']) - (ybuff * ynegadj)]
 
     # find buffer in lat/long to use in simulation
     latbuff = (max(gdf_nodes['lat']) - min(gdf_nodes['lat'])) * buffer_pct
     lonbuff = (max(gdf_nodes['lon']) - min(gdf_nodes['lon'])) * buffer_pct
     lbbox = [min(gdf_nodes['lon']) + (lonbuff * xposadj), min(gdf_nodes['lat']) + (latbuff * yposadj),
-        max(gdf_nodes['lon']) - (lonbuff * xnegadj), max(gdf_nodes['lat']) - (latbuff * ynegadj)]
+             max(gdf_nodes['lon']) - (lonbuff * xnegadj), max(gdf_nodes['lat']) - (latbuff * ynegadj)]
 
     # fill out coordinates into a rectangle and extract xy for plotting
     poly = shapely.geometry.box(*bbox)
@@ -1214,7 +1214,7 @@ class NetABM():
         if reset_interval is True:
             self.fire_perim['SimTime'].replace(sorted(list(set(self.fire_perim['SimTime'].values))),
                                 [(x + 1) * fire_act_ts_min for x in range(len(set(self.fire_perim['SimTime'].values)))],
-                                inplace=True)
+                                 inplace=True)
         self.init_strategies = init_strategies
         self.congestion_dict = {}
         self.tot_num_roads_in_bbox = len(self.roads_in_bbox)
@@ -1571,8 +1571,8 @@ class NetABM():
                             #       exp_no, nb_no, self.veh_status,
                             #       self.initial_veh_coords, self.congestion_dict]]
                             result_row = [str(i) for i in [exp_no, nb_no,
-                                treatment_no, rep_no, seed,
-                                str(frame_number),
+                                          treatment_no, rep_no, seed,
+                                          str(frame_number),
                                 len(self.vehicles), str(sum([_.isStuck for _ in self.vehicles])),
                                 self.tot_num_roads_in_bbox,
                                 [(st, self.strat_counter[st]) for st in self.strat_counter.keys()],
