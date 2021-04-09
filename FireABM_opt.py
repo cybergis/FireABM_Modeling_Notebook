@@ -195,16 +195,13 @@ def select_nearest_node(g, show_info=False):
     global near_node_id
     near_node_id = None
 
-
     def print_coords(button_inst):
         if show_info:
             print(coords)
 
-
     def print_node_id(button_inst):
         if show_info:
             print(near_node_id)
-
 
     def onclick(event):
         global ix, iy
@@ -852,7 +849,6 @@ class Road:
         # print('checkin vid:', vid, 'fn:', frame_number, 'rdidx:', self.idx)
         self.checkins[vid] = (pos, frame_number)
 
-
     def check_out(self, vid, last_pos, frame_number):
         assert vid in self.checkins
         delta = last_pos - self.checkins[vid][0]  # Last pos - first pos
@@ -863,10 +859,8 @@ class Road:
         del self.checkins[vid]
     # <- quickest time
 
-    
     def set_block(self):  # set to block road by fire spread
         self.isBlocked = True
-
 
     def mutate_block(self, prob=0.1):
         if not self.isBlocked:
