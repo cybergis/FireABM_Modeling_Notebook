@@ -10,9 +10,9 @@ import matplotlib.animation as animation
 import matplotlib.patches as patches
 import matplotlib.collections as collections
 import matplotlib.lines as mp_lines
-from IPython.display import HTML, display
+from IPython.display import display  # HTML
 import networkx as nx
-from networkx.utils import generate_unique_node
+# from networkx.utils import generate_unique_node
 import random
 import copy
 import ipywidgets as widgets
@@ -23,8 +23,8 @@ import time
 import math
 import pytz
 from datetime import datetime
-from heapq import heappush, heappop
-from itertools import count
+# from heapq import heappush, heappop
+# from itertools import count
 
 # plt.rcParams['animation.writer']='avconv'
 plt.rcParams['animation.writer'] = 'ffmpeg'
