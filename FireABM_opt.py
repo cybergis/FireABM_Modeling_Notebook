@@ -36,6 +36,7 @@ DEFAULT_ROAD_SPEED = 15  # m/s, ~35 mph
 time_zone = pytz.timezone('America/Chicago')
 seed_number = None
 
+
 def set_seeds(in_seed_number):  # sets seed for reproducibility, both python and numpy random generators used
     np.random.seed(in_seed_number)
     random.seed(in_seed_number)
@@ -43,8 +44,10 @@ def set_seeds(in_seed_number):  # sets seed for reproducibility, both python and
     seed_number = in_seed_number
     return seed_number
 
+
 def check_seed():
     print(seed_number)
+
 
 def gen_seeds(tot_size, sel_size, seed_number):
     seeds = []
@@ -55,6 +58,7 @@ def gen_seeds(tot_size, sel_size, seed_number):
             seeds.append(r)
     return seeds
 
+
 def time_stamp(start_time=None):
     print(datetime.now(time_zone).strftime("%H:%M:%S"))
     if start_time is None:
@@ -62,10 +66,12 @@ def time_stamp(start_time=None):
     else:
         return abm_timer(start_time, time.time())
 
+
 def abm_timer(start, end):
     hours, rem = divmod(end - start, 3600)
     minutes, seconds = divmod(rem, 60)
     print("{:0>2}:{:0>2}:{:05.2f}".format(int(hours), int(minutes), seconds))
+
 
 def setup_sim(g, seed=51, no_seed=False):
     fig, ax = ox.plot_graph(g, node_size=0, fig_height=15, show=False, margin=0)
@@ -74,27 +80,33 @@ def setup_sim(g, seed=51, no_seed=False):
         set_seeds(seed)
     return fig, ax
 
+
 def str_replace_mult(string, rep_list):
     for r in rep_list:
         string = string.replace(*r)
     return string
 
+
 def mph2ms(mph):
     return mph * 0.44704
+
 
 def dist2(a, b):
     dx = a[0] - b[0]
     dy = a[1] - b[1]
     return dx * dx + dy * dy
 
+
 def get_node_edge_gdf(g):
     nodes = ox.graph_to_gdfs(g, nodes=True, edges=False)
     edges = ox.graph_to_gdfs(g, nodes=False, edges=True)
     return(nodes, edges)
 
+
 def load_road_graph(pkl_file):
     g = nx.read_gpickle(path=pkl_file)
     return g
+
 
 def create_bboxes(gdf_nodes, buffer_pct=0.15, buff_adj=None):
     if buff_adj:
@@ -118,6 +130,7 @@ def create_bboxes(gdf_nodes, buffer_pct=0.15, buff_adj=None):
     x, y = poly.exterior.xy
     return (bbox, lbbox, poly, x, y)
 
+
 def check_graphs(gdf_edges, x=None, y=None, shpfile=None, is_fire=True, zorder=4, figsize=(8, 8)):
     fig, ax = plt.subplots(figsize=figsize)
     gdf_edges.plot(ax=ax)
@@ -129,6 +142,7 @@ def check_graphs(gdf_edges, x=None, y=None, shpfile=None, is_fire=True, zorder=4
         else:
             shpfile.plot(ax=ax, cmap='Greens', zorder=zorder)
     return (fig, ax)
+
 
 def inspect(g, nid, mid=None, radius=300, showMap=False, fullMap=True):  # Becky add g, showMap
     # if 'x' in g.nodes[nid]: # Becky added if statement, fix graph
@@ -154,12 +168,14 @@ def inspect(g, nid, mid=None, radius=300, showMap=False, fullMap=True):  # Becky
             if showMap:  # Becky add showMap logic
                 return ox.plot_graph_folium(t)
 
+
 def highlight(g, edgelist, showMap=False):
     ec = ['r' if (u, v, key) in edgelist else '#336699' for u, v, key in g.edges(keys=True)]
     es = [3 if (u, v, key) in edgelist else 1 for u, v, key in g.edges(keys=True)]
     ox.plot_graph(g, node_size=30, edge_color=ec, edge_linewidth=es, edge_alpha=0.5)
     if showMap:
         return ox.plot_graph_folium(g)
+
 
 class LoadedButton(widgets.Button):
     """A button that can holds a value as a attribute."""
@@ -168,6 +184,7 @@ class LoadedButton(widgets.Button):
         super(LoadedButton, self).__init__(*args, **kwargs)
         # Create the value attribute.
         self.add_traits(value=traitlets.Any(value))
+
 
 def select_nearest_node(g, show_info=False):
     global fig, ax
@@ -178,13 +195,16 @@ def select_nearest_node(g, show_info=False):
     global near_node_id
     near_node_id = None
 
+
     def print_coords(button_inst):
         if show_info:
             print(coords)
 
+
     def print_node_id(button_inst):
         if show_info:
             print(near_node_id)
+
 
     def onclick(event):
         global ix, iy
@@ -216,6 +236,7 @@ def view_node_attrib(g, attrib, show_null=False):
         culdesacs = [key for key, value in g.graph['streets_per_node'].items() if value == 1]
         nc = ['r' if node in culdesacs else 'none' for node in g.nodes()]
     ox.plot_graph(g, node_color=nc)
+
 
 def view_edge_attrib(g, attrib, fig_height=8, show_null=False, show_edge_values=False, edge_value_rm=None, show_val=False, val=None, num_bins=5, set_range=None, breaks=None, set_colors=None, node_size=5, cmap='viridis', na_color='none'):
     gdf_edges = ox.graph_to_gdfs(g, nodes=False, edges=True)
@@ -334,9 +355,11 @@ def view_edge_attrib(g, attrib, fig_height=8, show_null=False, show_edge_values=
     else:
         print('attribute not found in edges')
 
+
 # adapted from https://stackoverflow.com/questions/19877666/add-legends-to-linecollection-plot/19881647#19881647
 def make_proxy(color, **kwargs):
     return mp_lines.Line2D([0, 1], [0, 1], color=color, **kwargs)
+
 
 def get_edge_colors_by_attr(g, attr, num_bins=5, cmap='viridis', start=0, stop=1, na_color='none', bin_cuts=None):  # overloaded osnmx function (support both continuous and non continuous vars)
     if num_bins is None:
@@ -362,11 +385,13 @@ def get_edge_colors_by_attr(g, attr, num_bins=5, cmap='viridis', start=0, stop=1
 
     return edge_colors, colors, bins
 
+
 def load_shpfile(g, path_list):
     in_file = gpd.read_file(os.path.join(*path_list))
     ox_crs = find_UTM_crs(g.nodes[list(g.nodes)[0]]['lat'], g.nodes[list(g.nodes)[0]]['lon'])
     prj_file = in_file.to_crs(ox_crs)
     return prj_file
+
 
 def show_fire(g, fire_perim, show_graph=True, sim_time_num=None):  # Becky added
     if sim_time_num:
@@ -379,6 +404,7 @@ def show_fire(g, fire_perim, show_graph=True, sim_time_num=None):  # Becky added
         fire_perim.plot(cmap='YlOrRd', alpha=0.2, edgecolor='grey')
     plt.show()
 
+
 def show_shpfile(g, shpfile, show_graph=True, is_fire=True, sim_time_num=None):  # Becky added
     if is_fire:
         if sim_time_num:
@@ -390,6 +416,7 @@ def show_shpfile(g, shpfile, show_graph=True, is_fire=True, sim_time_num=None): 
     else:
         shpfile.plot(cmap='YlOrRd', alpha=0.2, edgecolor='grey')
     plt.show()
+
 
 def convert_fire_time(fire_perim, spread_num=None, sim_time_num=None, length=False):
     fire_list = sorted(list(set(fire_perim["SimTime"])))
@@ -408,16 +435,19 @@ def convert_fire_time(fire_perim, spread_num=None, sim_time_num=None, length=Fal
     else:
         return fire_list
 
+
 def setup_graph(g):  # Becky added
     fig, ax = ox.plot_graph(g, node_size=0, fig_height=15, show=False, margin=0)
     fig.tight_layout()
     return fig, ax
+
 
 def resolve_deadend(g):
     deadEnds = [e for e in g.edges(keys=True, data=True) if len(g.adj[e[1]]) == 0]  # Becky update fix
     for d in deadEnds:
         g.add_edge(d[1], d[0], key=0)
     return g
+
 
 def fillPhantom(g):
     for e in g.edges(keys=True, data=True):
@@ -427,11 +457,13 @@ def fillPhantom(g):
             e[3]['geometry'] = LineString([Point(g.nodes[u]['x'], g.nodes[u]['y']), Point(g.nodes[v]['x'], g.nodes[v]['y'])])
     return g
 
+
 def adjustLength(g):
     for e in g.edges(keys=True, data=True):
         if 'geometry' in e[3]:
             e[3]['length'] = e[3]['geometry'].length
     return g
+
 
 def add_unit_speed(g):  # Becky add for routing
     for e in g.edges(keys=True, data=True):
@@ -452,6 +484,7 @@ def add_unit_speed(g):  # Becky add for routing
 
         e[3]['ett'] = e[3]['length'] / e[3]['speed']  # -> Quickest
     return g
+
 
 def add_road_type_weights(g, rt_weights=[1, 1, 5, 10, 15, 20, 20]):  # Becky add for routing
     # https://wiki.openstreetmap.org/wiki/Key:highway
@@ -486,6 +519,7 @@ def add_road_type_weights(g, rt_weights=[1, 1, 5, 10, 15, 20, 20]):  # Becky add
             e[3]['rt_weight'] = rt_weights[5]
             e[3]['rt_weighted_len'] = e[3]['length'] * rt_weights[5]
     return g
+
 
 def add_households(g, hh_shp, shp_name, hh_col_name, cut_off_len=10, num_col=10, bbox_poly=None):  # Becky add for placing vehicles
 
@@ -563,6 +597,7 @@ def add_households(g, hh_shp, shp_name, hh_col_name, cut_off_len=10, num_col=10,
 
     return return_list
 
+
 def set_test_hh_ratio(g, rat_dict):
     for e in g.edges(keys=True, data=True):
         if 'Tract_name' in e[3]:
@@ -572,9 +607,11 @@ def set_test_hh_ratio(g, rat_dict):
                 e[3]['Test_Cpd_Ratio'] = 0.0
     return g
 
+
 def poly_to_gdf(poly):
     poly_gdf = gpd.GeoDataFrame([1], geometry=[poly])
     return poly_gdf
+
 
 def adj_speed_value(g, populate=False, overwrite=False):  # Becky Add for routing
     for e in g.edges(keys=True, data=True):
@@ -595,6 +632,7 @@ def adj_speed_value(g, populate=False, overwrite=False):  # Becky Add for routin
                 e[3]['adj_speed'] = 0
     return g
 
+
 def add_fire_distance(g, fire_df, norm=False, inv=False):
     # print('adding fire distance, norm', norm, 'inv', inv)
     for e in g.edges(keys=True, data=True):
@@ -611,6 +649,7 @@ def add_fire_distance(g, fire_df, norm=False, inv=False):
         g = invert_norm_edge_attribute(g, 'fire_dist_n', 'inv_fire_dist_n')
     return g
 
+
 def normalize_edge_attribute(g, attr, att_min, att_max, new_name):
     for e in g.edges(keys=True, data=True):
         if attr in e[3]:
@@ -619,6 +658,7 @@ def normalize_edge_attribute(g, attr, att_min, att_max, new_name):
             e[3][new_name] = None
     return g
 
+
 def invert_norm_edge_attribute(g, attr, new_name):
     for e in g.edges(keys=True, data=True):
         if attr in e[3]:
@@ -626,6 +666,7 @@ def invert_norm_edge_attribute(g, attr, new_name):
         else:
             e[3][new_name] = None
     return g
+
 
 def combine_attribute(g, attrs, weights, new_name):
     # print('combining', str(attrs), 'at weights', str(weights), 'to', new_name)
@@ -636,22 +677,28 @@ def combine_attribute(g, attrs, weights, new_name):
             e[3][new_name] = None
     return g
 
+
 def cleanUp(g):
     return adjustLength(fillPhantom(g))
 
+
 def project_lat_lon(lat, lon):
     return ox.project_geometry(Point(lon, lat))[0].coords[0]
+
 
 # Becky added function
 def project_UTM(y, x, crs):
     return ox.project_geometry(Point(y, x), crs=crs, to_latlong=True)[0].coords[0]
 
+
 # Becky added function
 def find_UTM_crs(lat, lon):
     return ox.project_geometry(Point(lon, lat))[1]
 
+
 def isNodeInBbox(node, bbox):
     return bbox[0][0] < node['x'] < bbox[1][0] and bbox[0][1] < node['y'] < bbox[1][1]
+
 
 def view_path(g, start_point, exit_point, strategy=[], showMap=False, norm=True):  # Becky added, show path choosen by driving strategy
     path_list = []
@@ -706,10 +753,12 @@ def view_path(g, start_point, exit_point, strategy=[], showMap=False, norm=True)
 
     return path_list
 
+
 def strategy_opts():
     ops = ['dist', 'dist+speed', 'dist+road_type_weight',
            'dist+from+fire', 'fire+dist', 'fire+rdty_weight']
     return ops
+
 
 def convt_strategy_opts_to_weights(ops):
     for idx, strat in enumerate(ops):
@@ -730,6 +779,7 @@ def convt_strategy_opts_to_weights(ops):
             ops[idx] = 'fire_rd_wght_n'
 
     return ops
+
 
 def compare_paths(g, paths, strategies=None, showMap=False):  # Becky added, show path choosen by driving strategy
     colors = ox.get_colors(len(paths))
@@ -802,6 +852,7 @@ class Road:
         # print('checkin vid:', vid, 'fn:', frame_number, 'rdidx:', self.idx)
         self.checkins[vid] = (pos, frame_number)
 
+
     def check_out(self, vid, last_pos, frame_number):
         assert vid in self.checkins
         delta = last_pos - self.checkins[vid][0]  # Last pos - first pos
@@ -812,8 +863,10 @@ class Road:
         del self.checkins[vid]
     # <- quickest time
 
+    
     def set_block(self):  # set to block road by fire spread
         self.isBlocked = True
+
 
     def mutate_block(self, prob=0.1):
         if not self.isBlocked:
@@ -926,6 +979,7 @@ class Road:
             return (len(self.vehicles), len(self.vehicles) / self.length)
         else:
             return (len(self.vehicles), None)
+
 
 class Vehicle:
     def __init__(self, g, vid, road=None, length=DEFAULT_VEHICLE_LENGTH, pos=0, target=None, st_weight='length'):
@@ -1106,6 +1160,7 @@ class Vehicle:
             return str(self.road.geom.interpolate(self.pos).coords[0][0]) + ";" + str(self.road.geom.interpolate(self.pos).coords[0][1])
         else:
             return self.road.geom.interpolate(self.pos).coords[0]
+
 
 class NetABM():
 
