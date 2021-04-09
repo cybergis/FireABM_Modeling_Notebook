@@ -1,6 +1,6 @@
 import argparse
 import os
-import time
+# import time
 from datetime import datetime
 import pytz
 from pathlib import Path
