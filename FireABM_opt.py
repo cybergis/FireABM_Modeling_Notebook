@@ -269,8 +269,8 @@ def view_edge_attrib(g, attrib, fig_height=8, show_null=False, show_edge_values=
             if ((gdf_edges[attrib].dtype == 'int64'  # noqa: W503 # note W504 replaces W503 see https://www.flake8rules.com/rules/W504.html
                  or gdf_edges[attrib].dtype == 'float64'  # noqa: W503
                  or gdf_edges[attrib].dtype == 'float'  # noqa: W503
-                 or gdf_edges[attrib].dtype == 'int')  # noqa: W503
-                and attrib != 'key'):  # noqa: W503
+                 or gdf_edges[attrib].dtype == 'int') and attrib != 'key'):  # noqa: W503
+
                 print('min', round(gdf_edges[attrib].min(), 2), 'max', round(gdf_edges[attrib].max(), 2))
                 ec, colors, bins = get_edge_colors_by_attr(g, attr=attrib, num_bins=num_bins, cmap=cmap, bin_cuts=breaks)
                 # print('c and b', colors, bins)
