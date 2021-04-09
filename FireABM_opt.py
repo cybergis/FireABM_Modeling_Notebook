@@ -309,7 +309,6 @@ def view_edge_attrib(g, attrib, fig_height=8, show_null=False, show_edge_values=
                     legend_items['colors'] = ['blue']
                     legend_items['names'] = ['Unable to parse variable']
 
-
         if show_edge_values:
             fig_height = 20
 
@@ -1275,7 +1274,6 @@ class NetABM():
                 for i in range(len(self.vehicles)):
                     self.vehicles[i].navigate(weight=self.vehicles[i].st_weight, target=self.targets)
 
-
     def select_fire_slice(self, update_number):
         now_time = self.fire_ignit_time + (update_number * self.fire_act_ts_min)
         # print("fire sliced....", update_number, ", ", now_time)
@@ -1331,8 +1329,6 @@ class NetABM():
                 if (not self.vehicles[i].isStuck) and self.vehicles[i].handle_blocks(self.last_closed_roads, target=self.targets):
                     self.vehicle_colors[i] = (0.0, 0.0, 0.0, 1.0)  # black
 
-
-
     def show(self, ax, number_veh=False):
         # return ax.scatter(*zip(*[_.xy() for _ in self.vehicles]), s=20)
 
@@ -1363,7 +1359,6 @@ class NetABM():
             return (" ").join(pos_lost)
         else:
             return ([(_.vid, _.xy()) for _ in self.vehicles])
-
 
     def list_veh_positions(self):
         return ([(_.vid, _.road.idx, _.pos) for _ in self.vehicles])
@@ -1449,7 +1444,6 @@ class NetABM():
                     i += 1
                     yield i
 
-
             self.one_flag = []
 
             def update(frame_number):
@@ -1462,7 +1456,6 @@ class NetABM():
                 # !!! reset closed roads, need to confirm no removal
 
                 # initial wildfire location
-
 
                 # if self.fire_perim is not None:
                 #    if frame_number == 1:
