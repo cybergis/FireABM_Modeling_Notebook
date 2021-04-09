@@ -304,7 +304,7 @@ def view_edge_attrib(g, attrib, fig_height=8, show_null=False, show_edge_values=
                     if len(colors) > len(cat_names):
                         legend_items['names'].append('Null')
 
-                except:
+                except:  # noqa: E722
                     ec = 'blue'
                     legend_items['colors'] = ['blue']
                     legend_items['names'] = ['Unable to parse variable']
@@ -355,7 +355,7 @@ def get_edge_colors_by_attr(g, attr, num_bins=5, cmap='viridis', start=0, stop=1
         else:
             print('bin_cuts!!', bin_cuts)
             cats, bins = pd.cut(x=attr_values, bins=bin_cuts, labels=bin_labels, retbins=True)
-    except:  # added to support non continuous vars
+    except:  # noqa: E722 # added to support non continuous vars 
         cats, bins = pd.cut(x=attr_values, bins=num_bins, labels=bin_labels, retbins=True)
 
     colors = ox.get_colors(num_bins, cmap, start, stop)
