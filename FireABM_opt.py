@@ -1451,6 +1451,7 @@ class NetABM():
 
 
             self.one_flag = []
+
             def update(frame_number):
                 # print('.', end="")
                 if frame_number == 1:  # catch duplicate frame number
