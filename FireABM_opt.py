@@ -355,7 +355,7 @@ def get_edge_colors_by_attr(g, attr, num_bins=5, cmap='viridis', start=0, stop=1
         else:
             print('bin_cuts!!', bin_cuts)
             cats, bins = pd.cut(x=attr_values, bins=bin_cuts, labels=bin_labels, retbins=True)
-    except:  # noqa: E722 # added to support non continuous vars 
+    except:  # noqa: E722 # added to support non continuous vars
         cats, bins = pd.cut(x=attr_values, bins=num_bins, labels=bin_labels, retbins=True)
 
     colors = ox.get_colors(num_bins, cmap, start, stop)
