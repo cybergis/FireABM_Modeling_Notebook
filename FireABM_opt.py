@@ -266,10 +266,10 @@ def view_edge_attrib(g, attrib, fig_height=8, show_null=False, show_edge_values=
                     legend_items['names'].append('Not in list')
 
         else:
-            if ((gdf_edges[attrib].dtype == 'int64' 
-                or gdf_edges[attrib].dtype == 'float64'
-                or gdf_edges[attrib].dtype == 'float'
-                or gdf_edges[attrib].dtype == 'int') and attrib is not 'key'): 
+            if ((gdf_edges[attrib].dtype == 'int64' or
+                 gdf_edges[attrib].dtype == 'float64' or
+                 gdf_edges[attrib].dtype == 'float' or
+                 gdf_edges[attrib].dtype == 'int') and attrib != 'key'): 
                 print('min', round(gdf_edges[attrib].min(), 2), 'max', round(gdf_edges[attrib].max(), 2))
                 ec, colors, bins = get_edge_colors_by_attr(g, attr=attrib, num_bins=num_bins, cmap=cmap, bin_cuts=breaks)
                 # print('c and b', colors, bins)
@@ -278,7 +278,7 @@ def view_edge_attrib(g, attrib, fig_height=8, show_null=False, show_edge_values=
                     leg_item = str(round(bins[indx], 2)) + " - " + str(round(bins[indx + 1], 2))
                     legend_items['names'].append(leg_item)
 
-            elif gdf_edges[attrib].dtype == 'O' or attrib is 'key':
+            elif gdf_edges[attrib].dtype == 'O' or attrib == 'key':
                 edge_series = copy.deepcopy(gdf_edges[attrib])
                 for index, edgs in enumerate(edge_series):
                     if type(edgs) == list:
@@ -848,7 +848,7 @@ class Road:
     def add_vehicle(self, v):
         if self.tail_space() <= 0:
             return False
-        if v.pos is 0:
+        if v.pos == 0:
             v.pos = np.random.random() * self.tail_space()  # !!! This is not true random
         self.vehicles.append(v)
         return True
