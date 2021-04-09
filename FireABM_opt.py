@@ -1213,8 +1213,8 @@ class NetABM():
         self.fire_des_ts_sec = fire_des_ts_sec  # how many seconds desired between updates - can "speedup" or "slowdown" spread
         if reset_interval is True:
             self.fire_perim['SimTime'].replace(sorted(list(set(self.fire_perim['SimTime'].values))),
-                                [(x + 1) * fire_act_ts_min for x in range(len(set(self.fire_perim['SimTime'].values)))],
-                                 inplace=True)
+                                               [(x + 1) * fire_act_ts_min for x in range(len(set(self.fire_perim['SimTime'].values)))],
+                                               inplace=True)
         self.init_strategies = init_strategies
         self.congestion_dict = {}
         self.tot_num_roads_in_bbox = len(self.roads_in_bbox)
