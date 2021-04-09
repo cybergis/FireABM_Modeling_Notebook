@@ -30,7 +30,6 @@ def main():
 
     # python run_fireabm.py -nv 10 -sd 0 1 -epath '/home/jovyan/work/Fire_Optimization_ABM/src' -ofd ett_test -strat quickest -rg Sta_Rosa_2000.pkl -exdsc 'Test parser' -strd 1.0 -rfn 'sumer_result' -vfn 'summer_output'
 
-
     # ## REQUIRED
     # should be the same per experiment
     parser.add_argument('-nv', '--number_vehicles', required=True, type=int, dest='num_veh',
@@ -129,7 +128,6 @@ def main():
     fire_shp_ex = args.fire_shapefile.split('.')[0] + '.dbf'
     assert os.path.isfile(pars_exp_path / 'fire_input' / fire_shp_ex), 'required file (.dbf) is missing for fire shapefile'
 
-
     print('!! input parameters OK\n')
 
     ########################################################################################################
@@ -176,7 +174,6 @@ def main():
                 print("Issue with this: ", treat_desc, i, j, seed, strat_perc)
                 bad_seeds.append(seed)
     print('\nbad_seeds', bad_seeds)
-
 
     ########################################################################################################
     # #### end simulation run
