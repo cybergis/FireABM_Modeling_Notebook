@@ -1,10 +1,10 @@
 [![PythonCodeQuality](https://github.com/cybergis/FireABM_Modeling_Notebook/workflows/Python%20Code%20Quality/badge.svg)](https://github.com/cybergis/FireABM_Modeling_Notebook/actions)
 [![PythonCodeTest](https://github.com/cybergis/FireABM_Modeling_Notebook/workflows/Python%20Code%20Test/badge.svg)](https://github.com/cybergis/FireABM_Modeling_Notebook/actions)
 ![GitHub](https://img.shields.io/github/license/cybergis/FireABM_Modeling_Notebook?style=plastic)
-## A Spatially Explicit Agent-Based Modeling Approach to Evaluating Routing Strategies in Wildfire Evacuation
+## Evaluating Routing Strategies for Emergency Evacuation: A Spatially Explicit Agent-Based Modeling Approach
 ### Code Base Documentation
 
-#### By Rebecca Vandewalle, Jeon-Young Kang, and Shaowen Wang 
+#### By Rebecca Vandewalle, Furqan Baig, Santiago Nunez-Corrales, Jeon Young Kang, and Shaowen Wang
 This repository contains code needed to run an agent-based emergency evacuation simulation in Python. Agents can use one of 3 routing strategies to determine a path from their initial location to out of the evacuation zone. Simultaneously, a wildfire object can spread throughout the simulation and close roads.
 
 ![An example output simulation](img/example_run.gif)

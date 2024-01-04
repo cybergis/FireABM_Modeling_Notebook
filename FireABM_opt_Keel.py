@@ -22,6 +22,7 @@ import csv
 import time
 import math
 import pytz
+import pickle
 from datetime import datetime
 from heapq import heappush, heappop
 from itertools import count
@@ -93,7 +94,8 @@ def get_node_edge_gdf(g):
     return(nodes, edges)
 
 def load_road_graph(pkl_file):
-    g = nx.read_gpickle(path=pkl_file)
+    with open(pkl_file, 'rb') as f:
+        g = pickle.load(f)
     return g
 
 def create_bboxes(gdf_nodes, buffer_pct=0.15, buff_adj=None):
@@ -231,7 +233,7 @@ def view_edge_attrib(g, attrib, figsize=(10, 8), show_null=False, show_edge_valu
             if set_colors:
                 colors = set_colors
             else:
-                colors = ox.get_colors(len(set_range), cmap=cmap)
+                colors = ox.plot.get_colors(len(set_range), cmap=cmap)
             ec = []
             elw = []
             for u, v, key, data in g.edges(keys=True, data=True):
@@ -256,7 +258,7 @@ def view_edge_attrib(g, attrib, figsize=(10, 8), show_null=False, show_edge_valu
             else:
                 cats = list(range(len(val)))
                 cat_names = val
-                colors = ox.get_colors(len(val), cmap=cmap)
+                colors = ox.plot.get_colors(len(val), cmap=cmap)
                 ec = [colors[val.index(data[attrib])] if data[attrib] in val else 'grey' for u, v, key, data in g.edges(keys=True, data=True)]
                 legend_items['colors'] = colors
                 legend_items['names'] = list(cat_names)
@@ -264,7 +266,7 @@ def view_edge_attrib(g, attrib, figsize=(10, 8), show_null=False, show_edge_valu
                     legend_items['names'].append('Not in list')
         
         else:
-            if gdf_edges[attrib].dtype in ['int64', 'float64', 'float', 'int'] and attrib is not 'key':
+            if gdf_edges[attrib].dtype in ['int64', 'float64', 'float', 'int'] and attrib != 'key':
                 print('min', round(gdf_edges[attrib].min(), 2), 'max', round(gdf_edges[attrib].max(), 2))
                 ec, colors, bins = get_edge_colors_by_attr(g, attr=attrib, num_bins=num_bins, cmap=cmap, bin_cuts=breaks)
                 #print('c and b', colors, bins)
@@ -273,14 +275,14 @@ def view_edge_attrib(g, attrib, figsize=(10, 8), show_null=False, show_edge_valu
                     leg_item = str(round(bins[indx], 2)) + " - " + str(round(bins[indx+1], 2))
                     legend_items['names'].append(leg_item)
                 
-            elif gdf_edges[attrib].dtype == 'O' or attrib is 'key':
+            elif gdf_edges[attrib].dtype == 'O' or attrib == 'key':
                 edge_series = copy.deepcopy(gdf_edges[attrib])
                 for index, edgs in enumerate(edge_series):
                     if type(edgs) == list:
                         edge_series[index] = edgs[0]
                 cats = edge_series.astype("category").cat.codes
                 cat_names = edge_series.astype("category").cat.categories
-                colors = ox.get_colors(len(edge_series.unique()), cmap=cmap)
+                colors = ox.plot.get_colors(len(edge_series.unique()), cmap=cmap)
                 ec = [colors[int(cat)] if pd.notnull(cat) else na_color for cat in cats]
                 legend_items['colors'] = colors
                 legend_items['names'] = list(cat_names)
@@ -291,7 +293,7 @@ def view_edge_attrib(g, attrib, figsize=(10, 8), show_null=False, show_edge_valu
                 try:
                     cats = gdf_edges[attrib].astype("category").cat.codes
                     cat_names = gdf_edges[attrib].astype("category").cat.categories
-                    colors = ox.get_colors(len(gdf_edges[attrib].unique()), cmap=cmap)
+                    colors = ox.plot.get_colors(len(gdf_edges[attrib].unique()), cmap=cmap)
                     ec = [colors[int(cat)] if pd.notnull(cat) else na_color for cat in cats]
                     legend_items['colors'] = colors
                     legend_items['names'] = list(cat_names)
@@ -305,7 +307,10 @@ def view_edge_attrib(g, attrib, figsize=(10, 8), show_null=False, show_edge_valu
         
     
         if show_edge_values:
-            fig_size = (24, 20) #keel
+            fig_size = (20, 20) #keel
+        else:
+            fig_size = (8, 8)
+        
         
         fig, ax = ox.plot_graph(g, figsize=fig_size, node_size=node_size, edge_color=ec, edge_alpha=0.5, edge_linewidth=elw, show=False, close=False) #keel
     
@@ -352,7 +357,7 @@ def get_edge_colors_by_attr(g, attr, num_bins=5, cmap='viridis', start=0, stop=1
     except: #added to support non continuous vars
         cats, bins = pd.cut(x=attr_values, bins=num_bins, labels=bin_labels, retbins=True)
         
-    colors = ox.get_colors(num_bins, cmap, start, stop)
+    colors = ox.plot.get_colors(num_bins, cmap, start, stop)
     edge_colors = [colors[int(cat)] if pd.notnull(cat) else na_color for cat in cats]
     
     return edge_colors, colors, bins
@@ -660,7 +665,7 @@ def view_path(g, start_point, exit_point, strategy=[], showMap=False, norm=True)
     
     else:
         
-        colors = ox.get_colors(len(strategy))
+        colors = ox.plot.get_colors(len(strategy))
         rc = [colors[strategy.index(x)] for x in strategy for y in x]
         for rs in strategy:
             if rs == 'dist':
@@ -727,7 +732,7 @@ def convt_strategy_opts_to_weights(ops):
     return ops
 
 def compare_paths(g, paths, strategies=None, showMap=False): # Becky added, show path choosen by driving strategy
-    colors = ox.get_colors(len(paths))
+    colors = ox.plot.get_colors(len(paths))
     
     rc = [colors[paths.index(x)] for x in paths for y in x]
     nc = [val for val in colors for _ in (0, 1)]
@@ -843,7 +848,7 @@ class Road:
     def add_vehicle(self, v):
         if self.tail_space() <= 0:
             return False
-        if v.pos is 0:
+        if v.pos == 0:
             v.pos = np.random.random()*self.tail_space() ##!!! This is not true random
         self.vehicles.append(v)
         return True

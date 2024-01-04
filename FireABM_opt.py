@@ -22,6 +22,7 @@ import csv
 import time
 import math
 import pytz
+import pickle
 from datetime import datetime
 # from heapq import heappush, heappop
 # from itertools import count
@@ -74,7 +75,7 @@ def abm_timer(start, end):
 
 
 def setup_sim(g, seed=51, no_seed=False):
-    fig, ax = ox.plot_graph(g, node_size=0, fig_height=15, show=False, margin=0)
+    fig, ax = ox.plot_graph(g, node_size=0, figsize=(15, 15), show=False)
     fig.tight_layout()
     if not no_seed:
         set_seeds(seed)
@@ -104,7 +105,8 @@ def get_node_edge_gdf(g):
 
 
 def load_road_graph(pkl_file):
-    g = nx.read_gpickle(path=pkl_file)
+    with open(pkl_file, 'rb') as f:
+        g = pickle.load(f)
     return g
 
 
@@ -235,7 +237,7 @@ def view_node_attrib(g, attrib, show_null=False):
     ox.plot_graph(g, node_color=nc)
 
 
-def view_edge_attrib(g, attrib, fig_height=8, show_null=False, show_edge_values=False, edge_value_rm=None, show_val=False, val=None, num_bins=5, set_range=None, breaks=None, set_colors=None, node_size=5, cmap='viridis', na_color='none'):
+def view_edge_attrib(g, attrib, figsize=(10, 8), show_null=False, show_edge_values=False, edge_value_rm=None, show_val=False, val=None, num_bins=5, set_range=None, breaks=None, set_colors=None, node_size=5, cmap='viridis', na_color='none'):
     gdf_edges = ox.graph_to_gdfs(g, nodes=False, edges=True)
     if attrib in gdf_edges:
         print('Attribute: ' + attrib + ', Type: ' + str(gdf_edges[attrib].dtype))
@@ -251,7 +253,7 @@ def view_edge_attrib(g, attrib, fig_height=8, show_null=False, show_edge_values=
             if set_colors:
                 colors = set_colors
             else:
-                colors = ox.get_colors(len(set_range), cmap=cmap)
+                colors = ox.plot.get_colors(len(set_range), cmap=cmap)
             ec = []
             elw = []
             for u, v, key, data in g.edges(keys=True, data=True):
@@ -276,7 +278,7 @@ def view_edge_attrib(g, attrib, fig_height=8, show_null=False, show_edge_values=
             else:
                 cats = list(range(len(val)))
                 cat_names = val
-                colors = ox.get_colors(len(val), cmap=cmap)
+                colors = ox.plot.get_colors(len(val), cmap=cmap)
                 ec = [colors[val.index(data[attrib])] if data[attrib] in val else 'grey' for u, v, key, data in g.edges(keys=True, data=True)]
                 legend_items['colors'] = colors
                 legend_items['names'] = list(cat_names)
@@ -304,7 +306,7 @@ def view_edge_attrib(g, attrib, fig_height=8, show_null=False, show_edge_values=
                         edge_series[index] = edgs[0]
                 cats = edge_series.astype("category").cat.codes
                 cat_names = edge_series.astype("category").cat.categories
-                colors = ox.get_colors(len(edge_series.unique()), cmap=cmap)
+                colors = ox.plot.get_colors(len(edge_series.unique()), cmap=cmap)
                 ec = [colors[int(cat)] if pd.notnull(cat) else na_color for cat in cats]
                 legend_items['colors'] = colors
                 legend_items['names'] = list(cat_names)
@@ -315,7 +317,7 @@ def view_edge_attrib(g, attrib, fig_height=8, show_null=False, show_edge_values=
                 try:
                     cats = gdf_edges[attrib].astype("category").cat.codes
                     cat_names = gdf_edges[attrib].astype("category").cat.categories
-                    colors = ox.get_colors(len(gdf_edges[attrib].unique()), cmap=cmap)
+                    colors = ox.plot.get_colors(len(gdf_edges[attrib].unique()), cmap=cmap)
                     ec = [colors[int(cat)] if pd.notnull(cat) else na_color for cat in cats]
                     legend_items['colors'] = colors
                     legend_items['names'] = list(cat_names)
@@ -328,9 +330,11 @@ def view_edge_attrib(g, attrib, fig_height=8, show_null=False, show_edge_values=
                     legend_items['names'] = ['Unable to parse variable']
 
         if show_edge_values:
-            fig_height = 20
+            fig_size = (20, 20)
+        else:
+            fig_size = (8, 8)
 
-        fig, ax = ox.plot_graph(g, fig_height=fig_height, node_size=node_size, edge_color=ec, edge_alpha=0.5, edge_linewidth=elw, show=False, close=False)
+        fig, ax = ox.plot_graph(g, figsize=fig_size, node_size=node_size, edge_color=ec, edge_alpha=0.5, edge_linewidth=elw, show=False, close=False)
 
         if show_edge_values:
             for index, row in gdf_edges.iterrows():
@@ -377,7 +381,7 @@ def get_edge_colors_by_attr(g, attr, num_bins=5, cmap='viridis', start=0, stop=1
     except:  # noqa: E722 # added to support non continuous vars
         cats, bins = pd.cut(x=attr_values, bins=num_bins, labels=bin_labels, retbins=True)
 
-    colors = ox.get_colors(num_bins, cmap, start, stop)
+    colors = ox.plot.get_colors(num_bins, cmap, start, stop)
     edge_colors = [colors[int(cat)] if pd.notnull(cat) else na_color for cat in cats]
 
     return edge_colors, colors, bins
@@ -434,7 +438,7 @@ def convert_fire_time(fire_perim, spread_num=None, sim_time_num=None, length=Fal
 
 
 def setup_graph(g):  # Becky added
-    fig, ax = ox.plot_graph(g, node_size=0, fig_height=15, show=False, margin=0)
+    fig, ax = ox.plot_graph(g, node_size=0, figsize=(15, 15), show=False, margin=0)
     fig.tight_layout()
     return fig, ax
 
@@ -680,17 +684,17 @@ def cleanUp(g):
 
 
 def project_lat_lon(lat, lon):
-    return ox.project_geometry(Point(lon, lat))[0].coords[0]
+    return ox.projection.project_geometry(Point(lon, lat))[0].coords[0]
 
 
 # Becky added function
 def project_UTM(y, x, crs):
-    return ox.project_geometry(Point(y, x), crs=crs, to_latlong=True)[0].coords[0]
+    return ox.projection.project_geometry(Point(y, x), crs=crs, to_latlong=True)[0].coords[0]
 
 
 # Becky added function
 def find_UTM_crs(lat, lon):
-    return ox.project_geometry(Point(lon, lat))[1]
+    return ox.projection.project_geometry(Point(lon, lat))[1]
 
 
 def isNodeInBbox(node, bbox):
@@ -709,7 +713,7 @@ def view_path(g, start_point, exit_point, strategy=[], showMap=False, norm=True)
 
     else:
 
-        colors = ox.get_colors(len(strategy))
+        colors = ox.plot.get_colors(len(strategy))
         rc = [colors[strategy.index(x)] for x in strategy for y in x]
         for rs in strategy:
             if rs == 'dist':
@@ -779,7 +783,7 @@ def convt_strategy_opts_to_weights(ops):
 
 
 def compare_paths(g, paths, strategies=None, showMap=False):  # Becky added, show path choosen by driving strategy
-    colors = ox.get_colors(len(paths))
+    colors = ox.plot.get_colors(len(paths))
 
     rc = [colors[paths.index(x)] for x in paths for y in x]
     nc = [val for val in colors for _ in (0, 1)]

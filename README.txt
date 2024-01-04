@@ -1,9 +1,9 @@
 
 #########################################################
-Evaluating Implications of Problematic Routing Assumptions in Spatially Explicit Agent-Based Models of Wildfire Evacuation
+Evaluating Routing Strategies for Emergency Evacuation: A Spatially Explicit Agent-Based Modeling Approach
 
-By Rebecca Vandewalle, Jeon-Young Kang, and Shaowen Wang 
-Fall 2020
+By Rebecca Vandewalle, Furqan Baig, Santiago Nunez-Corrales, Jeon Young Kang, and Shaowen Wang
+Spring 2024
 
 Code Base Documentation
 
